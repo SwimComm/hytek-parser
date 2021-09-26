@@ -21,10 +21,53 @@ classifiers = [
 "Bug Tracker" = "https://www.github.com/SwimComm/hytek-parser/issues"
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.9"
+loguru = "^0.5.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
+pytest-cov = "^2.12.1"
+mypy = "^0.910"
+black = "^21.7b0"
+isort = "^5.9.3"
+flake8 = "^3.9.2"
+pyproject-flake8 = "^0.0.1-alpha.2"
+flake8-annotations = "^2.6.2"
+flake8-bugbear = "^21.4.3"
+flake8-builtins = "^1.5.3"
+flake8-docstrings = "^1.6.0"
+flake8-tidy-imports = "^4.4.1"
+pep8-naming = "^0.12.1"
+pre-commit = "^2.14.1"
+taskipy = "^1.8.1"
+pip-licenses = "^3.5.2"
+
+[tool.taskipy.tasks]
+# Lint the app
+lint = { cmd = "pre-commit run --all-files -v", help = "lint using flake8, mypy, black, isort, and pre-commit" }
+# Formatting scripts
+format = { cmd = "task format_black && task format_isort", help = "format using black, isort, and autoflake" }
+format_black = { cmd = "black app", help = "format using black" }
+format_isort = { cmd = "isort app", help = "format imports using isort" }
+# License check
+license_check = { cmd = "pip-licenses --fail-on 'GPLv3;GPLv2;AGPLv3;AGPLv2;AGPL'", help = "check licenses for GPL or AGPL" }
+# Set up pre-commit
+precommit = { cmd = "pre-commit install --hook-type pre-commit --hook-type commit-msg", help = "set up pre-commit" }
+
+[tool.flake8]
+max-line-length = 80
+ignore = "D203,E203,E501,W503,D100,D104,D105,D107,ANN101,ANN002,ANN003,ANN204"
+max-complexity = 10
+select = "A,ANN,B,C,D,E,EXE,F,N,W,B950"
+exclude = ".git,__pycache__,__init__.py,logs,.venv,.cache,.mypy_cache,.pytest_cache"
+
+[tool.mypy]
+ignore_missing_imports = true
+disallow_untyped_defs = true
+show_error_codes = true
+
+[tool.isort]
+profile = "black"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
