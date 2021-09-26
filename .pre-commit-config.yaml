@@ -31,16 +31,14 @@ repos:
       - id: flake8
         name: Flake8
         description: This hook runs flake8 within our project's poetry environment.
-        # https://github.com/pre-commit/pre-commit/issues/989
-        entry: python -c 'import os,subprocess; os.chdir("app"); os.execvp("poetry", ("poetry", "run", "pflake8"))'
+        entry: poetry run pflake8
         language: system
         types: [python]
         require_serial: true
       - id: mypy
         name: MyPy
         description: This hook runs mypy within our project's poetry environment.
-        # https://github.com/pre-commit/pre-commit/issues/989
-        entry: python -c 'import os; os.chdir("app"); os.execvp("poetry", ("poetry", "run", "mypy", "app"))'
+        entry: poetry run mypy hytek_parser
         language: system
         types: [python]
         require_serial: true
@@ -48,7 +46,7 @@ repos:
         name: Isort
         description: This hook runs isort within our project's poetry environment.
         # https://github.com/pre-commit/pre-commit/issues/989
-        entry: python -c 'import os; os.chdir("app"); os.execvp("poetry", ("poetry", "run", "isort", "--check-only", "app"))'
+        entry: poetry run isort --check-only hytek_parser
         language: system
         types: [python]
         require_serial: true
@@ -56,7 +54,7 @@ repos:
         name: Black
         description: This hook runs black within our project's pipenv environment.
         # https://github.com/pre-commit/pre-commit/issues/989
-        entry: python -c 'import os; os.chdir("app"); os.execvp("poetry", ("poetry", "run", "black", "--check", "app"))'
+        entry: poetry run black --check hytek_parser
         language: system
         types: [python]
         require_serial: true
@@ -64,7 +62,7 @@ repos:
         name: License Check
         description: This hook checks if there are copyleft licenses in our repo.
         # https://github.com/pre-commit/pre-commit/issues/989
-        entry: python -c 'import os; os.chdir("app"); os.execvp("poetry", ("poetry", "run", "task", "license_check"))'
+        entry: poetry run task license_check
         language: system
         files: ^(pyproject.toml|poetry.lock)$
         types: [file]
