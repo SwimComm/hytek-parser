@@ -67,3 +67,4 @@ repos:
         files: ^(pyproject.toml|poetry.lock)$
         types: [file]
         require_serial: true
+        pass_filenames: false
