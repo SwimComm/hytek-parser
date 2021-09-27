@@ -3,7 +3,7 @@ from typing import Any, Union
 
 from loguru import logger
 
-from .line_parsers import LINE_PARSERS
+from .line_parsers.hy3 import LINE_PARSERS
 from .schemas import ParsedHytekFile
 
 StrOrBytesPath = Union[
