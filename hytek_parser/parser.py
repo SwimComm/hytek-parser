@@ -1,5 +1,5 @@
 from os import PathLike
-from typing import Union
+from typing import Any, Union
 
 from loguru import logger
 
@@ -12,21 +12,30 @@ StrOrBytesPath = Union[
 
 
 def parse_hy3(
-    file: StrOrBytesPath, validate_checksums: bool = False
+    file: StrOrBytesPath, validate_checksums: bool = False, default_country: str = "USA"
 ) -> ParsedHytekFile:
     """Parse a Hytek MeetManager .hy3 file.
 
     Args:
         file (StrOrBytesPath): A path to the file to parse.
         validate_checksums (bool, optional): Validate line checksums. Defaults to False.
+        default_country (str, optional): Default country for meet. Defaults to "USA".
 
     Returns:
-        ParsedHY3: The parsed file.
+        ParsedHytekFile: The parsed file.
     """
     logger.info(f"Parsing Hytek meet entries file {file!r}.")
 
+    # TODO: Implement checksum validation
     if validate_checksums:
-        raise NotImplementedError("Validating checksums has not been implemented yet.")
+        logger.warning("Checksum validation not implemented, ignoring.")
+        validate_checksums = False
+
+    # Set options dict
+    opts: dict[str, Any] = {
+        "validate_checksums": validate_checksums,
+        "default_country": default_country,
+    }
 
     # Read file
     with open(file) as f:
@@ -49,7 +58,7 @@ def parse_hy3(
         logger.debug(parsed_file)
 
         try:
-            LINE_PARSERS[code](line, parsed_file)
+            LINE_PARSERS[code](line, parsed_file, opts)
         except KeyError:
             logger.warning(f"Invalid line code: {code}")
             continue

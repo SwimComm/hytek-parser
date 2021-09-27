@@ -1,7 +1,7 @@
 from datetime import datetime
-from typing import Callable
+from typing import Any, Callable
 
-from .schemas import Meet, ParsedHytekFile, Software
+from .schemas import MEET_COURSES, MEET_TYPES, Meet, ParsedHytekFile, Software
 
 
 def _extract(string: str, start: int, len_: int) -> str:
@@ -19,7 +19,7 @@ def _extract(string: str, start: int, len_: int) -> str:
     return string[start : start + len_].rstrip()
 
 
-def a1_parser(line: str, file: ParsedHytekFile) -> None:
+def a1_parser(line: str, file: ParsedHytekFile, opts: dict[str, Any]) -> None:
     """Parse an A1 line with file info."""
     file.file_description = _extract(line, 5, 25)
     file.software = Software(_extract(line, 30, 15), _extract(line, 45, 10))
@@ -33,19 +33,33 @@ def a1_parser(line: str, file: ParsedHytekFile) -> None:
     file.licensee = _extract(line, 76, 53)
 
 
-def b1_parser(line: str, file: ParsedHytekFile) -> None:
+def b1_parser(line: str, file: ParsedHytekFile, opts: dict[str, Any]) -> None:
     """Parse a B1 primary meet info line."""
-    meet_name = _extract(line, 3, 45)
-    meet_facility = _extract(line, 48, 45)
-    meet_start_date = datetime.strptime(_extract(line, 93, 8), "%m%d%Y").date()
-    meet_end_date = datetime.strptime(_extract(line, 101, 8), "%m%d%Y").date()
-    meet_altitude = int(_extract(line, 117, 5))
+    meet = Meet()
 
-    meet = Meet(meet_name, meet_facility, meet_start_date, meet_end_date, meet_altitude)
+    meet.name = _extract(line, 3, 45)
+    meet.facility = _extract(line, 48, 45)
+    meet.start_date = datetime.strptime(_extract(line, 93, 8), "%m%d%Y").date()
+    meet.end_date = datetime.strptime(_extract(line, 101, 8), "%m%d%Y").date()
+    meet.altitude = int(_extract(line, 117, 5))
+    # TODO: Find meet country
+    meet.country = opts["default_country"]
+
     file.meet = meet
 
 
-LINE_PARSERS: dict[str, Callable[[str, ParsedHytekFile], None]] = {
+def b2_parser(line: str, file: ParsedHytekFile, opts: dict[str, Any]) -> None:
+    """Parse a B2 secondary meet info line."""
+    meet = file.meet
+
+    meet.masters = _extract(line, 94, 2) == "06"
+    meet.type_code = _extract(line, 97, 2)
+    meet.type_ = MEET_TYPES[meet.type_code]
+    meet.course = MEET_COURSES[_extract(line, 99, 1)]
+
+
+LINE_PARSERS: dict[str, Callable[[str, ParsedHytekFile, dict[str, Any]], None]] = {
     "A1": a1_parser,
     "B1": b1_parser,
+    "B2": b2_parser,
 }
