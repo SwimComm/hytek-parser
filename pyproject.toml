@@ -23,6 +23,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.9"
 loguru = "^0.5.3"
+attrs = "^21.2.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
@@ -47,8 +48,8 @@ pip-licenses = "^3.5.2"
 lint = { cmd = "pre-commit run --all-files -v", help = "lint using flake8, mypy, black, isort, and pre-commit" }
 # Formatting scripts
 format = { cmd = "task format_black && task format_isort", help = "format using black, isort, and autoflake" }
-format_black = { cmd = "black app", help = "format using black" }
-format_isort = { cmd = "isort app", help = "format imports using isort" }
+format_black = { cmd = "black hytek_parser", help = "format using black" }
+format_isort = { cmd = "isort hytek_parser", help = "format imports using isort" }
 # License check
 license_check = { cmd = "pip-licenses --fail-on 'GPLv3;GPLv2;AGPLv3;AGPLv2;AGPL'", help = "check licenses for GPL or AGPL" }
 # Set up pre-commit

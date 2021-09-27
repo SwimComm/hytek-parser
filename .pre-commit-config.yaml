@@ -38,7 +38,7 @@ repos:
       - id: mypy
         name: MyPy
         description: This hook runs mypy within our project's poetry environment.
-        entry: poetry run mypy hytek_parser
+        entry: poetry run mypy
         language: system
         types: [python]
         require_serial: true
@@ -46,7 +46,7 @@ repos:
         name: Isort
         description: This hook runs isort within our project's poetry environment.
         # https://github.com/pre-commit/pre-commit/issues/989
-        entry: poetry run isort --check-only hytek_parser
+        entry: poetry run isort --check-only
         language: system
         types: [python]
         require_serial: true
@@ -54,7 +54,7 @@ repos:
         name: Black
         description: This hook runs black within our project's pipenv environment.
         # https://github.com/pre-commit/pre-commit/issues/989
-        entry: poetry run black --check hytek_parser
+        entry: poetry run black --check
         language: system
         types: [python]
         require_serial: true
