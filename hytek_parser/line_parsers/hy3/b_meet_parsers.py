@@ -1,8 +1,9 @@
 from datetime import datetime
 from typing import Any
 
+from ...enums import Course, MeetType
 from ...schemas import Meet, ParsedHytekFile
-from .._utils import MEET_COURSES, MEET_TYPES, extract
+from .._utils import extract, select_from_enum
 
 
 def b1_parser(
@@ -30,9 +31,8 @@ def b2_parser(
     meet = file.meet
 
     meet.masters = extract(line, 94, 2) == "06"
-    meet.type_code = extract(line, 97, 2)
-    meet.type_ = MEET_TYPES[meet.type_code]
-    meet.course = MEET_COURSES[extract(line, 99, 1)]
+    meet.type_ = select_from_enum(MeetType, extract(line, 97, 2))
+    meet.course = select_from_enum(Course, extract(line, 99, 1))
 
     file.meet = meet
     return file

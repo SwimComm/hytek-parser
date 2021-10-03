@@ -1,36 +1,6 @@
-from collections import defaultdict
+from typing import Any
 
-_MEET_TYPES: dict[str, str] = {
-    "00": "Time Trials",
-    "01": "Invitational",
-    "02": "Regional",
-    "03": "LSC Championship",
-    "04": "Zone",
-    "05": "Zone Championship",
-    "06": "National Championship",
-    "07": "Juniors",
-    "08": "Seniors",
-    "09": "Dual",
-    "0A": "International",
-    "0B": "Open",
-    "0C": "League",
-}
-MEET_TYPES: defaultdict[str, str] = defaultdict(lambda: "Unknown", _MEET_TYPES)
-
-_MEET_COURSES: dict[str, str] = {
-    # SCM
-    "1": "SCM",
-    "M": "SCM",
-    # SCY
-    "2": "SCY",
-    "Y": "SCY",
-    # LCM
-    "3": "LCM",
-    "L": "LCM",
-    # Other
-    "X": "Disqualified",
-}
-MEET_COURSES: defaultdict[str, str] = defaultdict(lambda: "Unknown", _MEET_COURSES)
+from loguru import logger
 
 
 def extract(string: str, start: int, len_: int) -> str:
@@ -46,3 +16,20 @@ def extract(string: str, start: int, len_: int) -> str:
     """
     start -= 1
     return string[start : start + len_].rstrip()
+
+
+def select_from_enum(enum: Any, value: Any) -> Any:
+    """Safely select a value from an enum.
+
+    Args:
+        enum (BaseEnum): The enum to select the value from.
+        value (Any): The value to select.
+
+    Returns:
+        BaseEnum: The selected value from the enum.
+    """
+    try:
+        return enum(value)
+    except ValueError:
+        logger.exception(f"Error getting value from Enum {enum}")
+        return enum.UNKNOWN

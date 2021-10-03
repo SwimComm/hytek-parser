@@ -1,10 +1,8 @@
 from datetime import datetime
 from typing import Any
 
-from loguru import logger
-
 from ...schemas import Gender, ParsedHytekFile, Swimmer
-from .._utils import extract
+from .._utils import extract, select_from_enum
 
 
 def d1_parser(
@@ -14,11 +12,7 @@ def d1_parser(
     team_code, _ = file.meet.get_last_team()
     swimmer = Swimmer()
 
-    try:
-        swimmer.gender = Gender(extract(line, 3, 1))
-    except ValueError:
-        logger.exception("Error in parsing gender.")
-        swimmer.gender = Gender.PARSING_ERROR
+    swimmer.gender = select_from_enum(Gender, extract(line, 3, 1))
 
     swimmer.meet_id = int(extract(line, 4, 5))
 

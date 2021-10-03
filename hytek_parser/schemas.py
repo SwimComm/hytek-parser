@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from datetime import date, datetime
-from enum import Enum, unique
 
 import attr
+
+from .enums import Course, Gender, MeetType
 
 
 @attr.s(auto_attribs=True)
@@ -31,9 +32,8 @@ class Meet:
 
     # Secondary info
     masters: bool
-    type_code: str
-    type_: str
-    course: str
+    type_: MeetType
+    course: Course
 
     # Entries
     teams: dict[str, Team]
@@ -45,7 +45,7 @@ class Meet:
         self.teams[swimmer.team_code].swimmers[swimmer.meet_id] = swimmer
 
     def get_last_team(self) -> tuple[str, Team]:
-        """Get the last team added."""
+        """Get the last team added as (team_code, Team)."""
         return list(self.teams.items())[-1]
 
 
@@ -69,15 +69,6 @@ class Team:
 
     # Swimmers
     swimmers: dict[int, Swimmer]
-
-
-@unique
-class Gender(Enum):
-    """Swimmer gender."""
-
-    MALE = "M"
-    FEMALE = "F"
-    PARSING_ERROR = "E"
 
 
 @attr.s(auto_attribs=True, init=False)

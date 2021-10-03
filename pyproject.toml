@@ -24,6 +24,7 @@ classifiers = [
 python = "^3.9"
 loguru = "^0.5.3"
 attrs = "^21.2.0"
+aenum = "^3.1.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
