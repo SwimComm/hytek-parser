@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 from datetime import date, datetime
+from enum import Enum, unique
 
 import attr
-
-# from typing import Optional
 
 
 @attr.s(auto_attribs=True)
@@ -36,8 +35,14 @@ class Meet:
     type_: str
     course: str
 
-    # Teams
+    # Entries
     teams: dict[str, Team]
+    swimmers: dict[int, Swimmer]
+
+    def add_swimmer(self, swimmer: Swimmer) -> None:
+        """Add a swimmer to the meet."""
+        self.swimmers[swimmer.meet_id] = swimmer
+        self.teams[swimmer.team_code].swimmers[swimmer.meet_id] = swimmer
 
 
 @attr.s(auto_attribs=True, init=False)
@@ -59,13 +64,38 @@ class Team:
     region: str
 
     # Swimmers
-    swimmers: list[Swimmer]
+    swimmers: dict[int, Swimmer]
 
 
+@unique
+class Gender(Enum):
+    """Swimmer gender."""
+
+    MALE = "M"
+    FEMALE = "F"
+    PARSING_ERROR = "E"
+
+
+@attr.s(auto_attribs=True, init=False)
 class Swimmer:
     """Represents a swimmer in a meet."""
 
-    pass
+    # Biological info? If you have a better name tell me.
+    gender: Gender
+    date_of_birth: date
+    age: int
+
+    # Names
+    first_name: str
+    last_name: str
+    nick_name: str
+    middle_initial: str
+
+    # ID numbers
+    meet_id: int
+    team_id: int
+    usa_swimming_id: str
+    team_code: str
 
 
 @attr.s(auto_attribs=True, init=False)
