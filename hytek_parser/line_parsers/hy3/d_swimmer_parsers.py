@@ -4,14 +4,14 @@ from typing import Any
 from loguru import logger
 
 from ...schemas import Gender, ParsedHytekFile, Swimmer
-from .._utils import extract, get_last_team
+from .._utils import extract
 
 
 def d1_parser(
     line: str, file: ParsedHytekFile, opts: dict[str, Any]
 ) -> ParsedHytekFile:
     """Parse a D1 swimmer entry line."""
-    team_code, _ = get_last_team(file)
+    team_code, _ = file.meet.get_last_team()
     swimmer = Swimmer()
 
     try:

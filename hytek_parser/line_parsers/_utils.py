@@ -1,7 +1,5 @@
 from collections import defaultdict
 
-from hytek_parser.schemas import ParsedHytekFile, Team
-
 _MEET_TYPES: dict[str, str] = {
     "00": "Time Trials",
     "01": "Invitational",
@@ -48,15 +46,3 @@ def extract(string: str, start: int, len_: int) -> str:
     """
     start -= 1
     return string[start : start + len_].rstrip()
-
-
-def get_last_team(file: ParsedHytekFile) -> tuple[str, Team]:
-    """Get the last team added.
-
-    Args:
-        file (ParsedHytekFile): The Hytek file.
-
-    Returns:
-        tuple[str, Team]: The team code and team.
-    """
-    return list(file.meet.teams.items())[-1]

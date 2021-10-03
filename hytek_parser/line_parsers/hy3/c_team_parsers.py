@@ -4,7 +4,7 @@ from typing import Any
 from loguru import logger
 
 from ...schemas import ParsedHytekFile, Team
-from .._utils import extract, get_last_team
+from .._utils import extract
 
 TEAM_CODE_REGEX = re.compile(r"\b(\w\w)")
 
@@ -38,7 +38,7 @@ def c2_parser(
 ) -> ParsedHytekFile:
     """Parse a C2 team entry line."""
     # Get the last team
-    team_code, team = get_last_team(file)
+    team_code, team = file.meet.get_last_team()
 
     team.address_1 = extract(line, 3, 60)
     team.city = extract(line, 63, 30)

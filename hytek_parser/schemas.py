@@ -44,6 +44,10 @@ class Meet:
         self.swimmers[swimmer.meet_id] = swimmer
         self.teams[swimmer.team_code].swimmers[swimmer.meet_id] = swimmer
 
+    def get_last_team(self) -> tuple[str, Team]:
+        """Get the last team added."""
+        return list(self.teams.items())[-1]
+
 
 @attr.s(auto_attribs=True, init=False)
 class Team:
