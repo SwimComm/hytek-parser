@@ -58,7 +58,7 @@ def parse_hy3(
         logger.debug(parsed_file)
 
         try:
-            LINE_PARSERS[code](line, parsed_file, opts)
+            parsed_file = LINE_PARSERS[code](line, parsed_file, opts)
         except KeyError:
             logger.warning(f"Invalid line code: {code}")
             continue
