@@ -16,6 +16,54 @@ class Software:
 
 
 @attr.s(auto_attribs=True, init=False)
+class Team:
+    """Represents a swim team."""
+
+    # Identification
+    code: str
+    name: str
+    short_name: str
+
+    # Location
+    address_1: str
+    address_2: str
+    city: str
+    state: str
+    zip_code: str
+    country: str
+    region: str
+
+    # Swimmers
+    swimmers: dict[int, Swimmer]
+
+    def __init__(self) -> None:
+        self.swimmers = {}
+        super().__init__()
+
+
+@attr.s(auto_attribs=True, init=False)
+class Swimmer:
+    """Represents a swimmer in a meet."""
+
+    # Biological info? If you have a better name tell me.
+    gender: Gender
+    date_of_birth: date
+    age: int
+
+    # Names
+    first_name: str
+    last_name: str
+    nick_name: str
+    middle_initial: str
+
+    # ID numbers
+    meet_id: int
+    team_id: int
+    usa_swimming_id: str
+    team_code: str
+
+
+@attr.s(auto_attribs=True, init=False)
 class Meet:
     """Represents a swim meet.
 
@@ -39,6 +87,11 @@ class Meet:
     teams: dict[str, Team]
     swimmers: dict[int, Swimmer]
 
+    def __init__(self) -> None:
+        self.teams = {}
+        self.swimmers = {}
+        super().__init__()
+
     def add_swimmer(self, swimmer: Swimmer) -> None:
         """Add a swimmer to the meet."""
         self.swimmers[swimmer.meet_id] = swimmer
@@ -47,50 +100,6 @@ class Meet:
     def get_last_team(self) -> tuple[str, Team]:
         """Get the last team added as (team_code, Team)."""
         return list(self.teams.items())[-1]
-
-
-@attr.s(auto_attribs=True, init=False)
-class Team:
-    """Represents a swim team."""
-
-    # Identification
-    code: str
-    name: str
-    short_name: str
-
-    # Location
-    address_1: str
-    address_2: str
-    city: str
-    state: str
-    zip_code: str
-    country: str
-    region: str
-
-    # Swimmers
-    swimmers: dict[int, Swimmer]
-
-
-@attr.s(auto_attribs=True, init=False)
-class Swimmer:
-    """Represents a swimmer in a meet."""
-
-    # Biological info? If you have a better name tell me.
-    gender: Gender
-    date_of_birth: date
-    age: int
-
-    # Names
-    first_name: str
-    last_name: str
-    nick_name: str
-    middle_initial: str
-
-    # ID numbers
-    meet_id: int
-    team_id: int
-    usa_swimming_id: str
-    team_code: str
 
 
 @attr.s(auto_attribs=True, init=False)
