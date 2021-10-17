@@ -9,7 +9,7 @@ def d1_parser(
     line: str, file: ParsedHytekFile, opts: dict[str, Any]
 ) -> ParsedHytekFile:
     """Parse a D1 swimmer entry line."""
-    team_code, _ = file.meet.get_last_team()
+    team_code, _ = file.meet.last_team
     swimmer = Swimmer()
 
     swimmer.gender = select_from_enum(Gender, extract(line, 3, 1))

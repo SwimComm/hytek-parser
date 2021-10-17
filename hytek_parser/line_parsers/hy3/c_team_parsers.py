@@ -38,7 +38,7 @@ def c2_parser(
 ) -> ParsedHytekFile:
     """Parse a C2 team entry line."""
     # Get the last team
-    team_code, team = file.meet.get_last_team()
+    team_code, team = file.meet.last_team
 
     team.address_1 = extract(line, 3, 60)
     team.city = extract(line, 63, 30)
@@ -53,5 +53,5 @@ def c2_parser(
     # TODO: Team region
     team.region = "Unknown"
 
-    file.meet.teams[team_code] = team
+    file.meet.last_team = (team_code, team)
     return file
