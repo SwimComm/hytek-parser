@@ -50,10 +50,11 @@ class Course(Enum):
 
     _settings_ = Unique, MultiValue
 
-    SCM = "M", "1", 1
+    SCM = "S", "M", "1", 1
     SCY = "Y", "2", 2
     LCM = "L", "3", 3
-    DQ = "X"
+    # Hytek doesn't put in a course for DFS
+    DQ = "X", " ", ""
     UNKNOWN = "U"
 
 
