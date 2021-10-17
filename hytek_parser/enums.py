@@ -85,9 +85,9 @@ class ReplacedTimeTimeCode(Enum):
 class WithTimeTimeCode(Enum):
     """Time codes that are listed adjacent to the swimmer's time."""
 
-    _settings_ = Unique
+    _settings_ = Unique, MultiValue
 
-    NORMAL = " "
+    NORMAL = " ", ""
     NO_SHOW = "R"
     DISQUALIFICATION = "Q"
     FALSE_START = "F"
