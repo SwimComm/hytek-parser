@@ -37,14 +37,14 @@ class Swimmer:
     team_code: str
 
 
-@attr.s(auto_attribs=True, init=False)
+@attr.s(auto_attribs=True)
 class Team:
     """Represents a swim team."""
 
     # Identification
-    code: str
     name: str
     short_name: str
+    code: str
 
     # Location
     address_1: str
@@ -57,10 +57,6 @@ class Team:
 
     # Swimmers
     swimmers: dict[int, Swimmer]
-
-    def __init__(self) -> None:
-        self.swimmers = {}
-        super().__init__()
 
 
 @attr.s(auto_attribs=True, init=False)
@@ -235,8 +231,46 @@ class Meet:
 
     def add_swimmer(self, swimmer: Swimmer) -> None:
         """Add a swimmer to the meet."""
-        self.swimmers[swimmer.meet_id] = swimmer
-        self.teams[swimmer.team_code].swimmers[swimmer.meet_id] = swimmer
+        if not self.swimmers.get(swimmer.meet_id):
+            # Only add a swimmer if they don't exist
+            self.swimmers[swimmer.meet_id] = swimmer
+            self.teams[swimmer.team_code].swimmers[swimmer.meet_id] = swimmer
+
+    def get_or_create_team(self, name: str, short_name: str, code: str) -> Team:
+        """Get a team or create if needed."""
+        if team := self.teams.get(code):
+            return team
+        else:
+            team = Team(
+                name=name,
+                short_name=short_name,
+                code=code,
+                address_1="N/A",
+                address_2="N/A",
+                city="N/A",
+                country="N/A",
+                region="N/A",
+                state="N/A",
+                zip_code="N/A",
+                swimmers=dict(),
+            )
+
+            # Add team, this also updates the teams dict
+            self.last_team = (code, team)
+            return team
+
+    @property
+    def last_team(self) -> tuple[str, Team]:
+        """Get the last team added as (team_code, Team)."""
+        return self._last_team
+
+    @last_team.setter
+    def last_team(self, team_info: tuple[str, Team]) -> None:
+        """Set the last team added."""
+        self._last_team = team_info
+
+        team_code, team = team_info
+        self.teams[team_code] = team
 
     def get_or_create_event(
         self,
@@ -274,22 +308,9 @@ class Meet:
                 entries=[],
             )
 
-            self.events[number] = event
-            self._last_event = (number, event)
+            # Add event, this also updates the events dict
+            self.last_event = (number, event)
             return event
-
-    @property
-    def last_team(self) -> tuple[str, Team]:
-        """Get the last team added as (team_code, Team)."""
-        return self._last_team
-
-    @last_team.setter
-    def last_team(self, team_info: tuple[str, Team]) -> None:
-        """Set the last team added."""
-        self._last_team = team_info
-
-        team_code, team = team_info
-        self.teams[team_code] = team
 
     @property
     def last_event(self) -> tuple[int, Event]:

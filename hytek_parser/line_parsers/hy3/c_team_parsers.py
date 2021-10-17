@@ -3,7 +3,7 @@ from typing import Any
 
 from loguru import logger
 
-from ...schemas import ParsedHytekFile, Team
+from ...schemas import ParsedHytekFile
 from .._utils import extract
 
 TEAM_CODE_REGEX = re.compile(r"\b(\w\w)")
@@ -13,23 +13,24 @@ def c1_parser(
     line: str, file: ParsedHytekFile, opts: dict[str, Any]
 ) -> ParsedHytekFile:
     """Parse a C1 team ID line."""
-    team = Team()
-
-    team.name = extract(line, 8, 30)
-    team.short_name = extract(line, 38, 16)
+    # Get team info
+    team_name = extract(line, 8, 30)
+    team_short_name = extract(line, 38, 16)
 
     if raw_team_code := extract(line, 3, 5):
         # Team code exists
-        team.code = raw_team_code
+        team_code = raw_team_code
     else:
         # Generate our own team code
-        logger.warning(f"No team code found for team {team.name}, generating.")
+        logger.warning(f"No team code found for team {team_name}, generating.")
 
         # Join first two letters of each work of uppercased full team name
         # Then truncate to 5 chars
-        team.code = "".join(TEAM_CODE_REGEX.findall(team.name.upper()))[:5]
+        team_code = "".join(TEAM_CODE_REGEX.findall(team_name.upper()))[:5]
 
-    file.meet.teams[team.code] = team
+    file.meet.get_or_create_team(
+        name=team_name, short_name=team_short_name, code=team_code
+    )
     return file
 
 
