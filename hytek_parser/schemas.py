@@ -175,7 +175,7 @@ class Event:
             converted_seed_time=converted_seed_time,
             converted_seed_time_course=converted_seed_time_course,
         )
-        if self.entries[-1].same_swimmer_entry_as(entry):
+        if self.entries and self.entries[-1].same_swimmer_entry_as(entry):
             # P/F entries always listed together
             return self.entries[-1]
         else:
