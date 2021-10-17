@@ -87,11 +87,10 @@ def e2_parser(
     course = select_from_enum(Course, extract(line, 12, 1))
     time_code = select_from_enum(WithTimeTimeCode, extract(line, 13, 1))
 
+    dq_code = None
     if time_code == WithTimeTimeCode.DISQUALIFICATION:
         # Get the DQ code
         dq_code = select_from_enum(DisqualificationCode, extract(line, 14, 2))
-    else:
-        dq_code = None
 
     heat = safe_cast(int, extract(line, 21, 3))
     lane = safe_cast(int, extract(line, 24, 3))

@@ -90,7 +90,10 @@ def get_age_group(
         return guess_age_group(swimmer_age)
 
 
-def select_from_enum(enum: Any, value: Any) -> Any:
+EnumType = TypeVar("EnumType")
+
+
+def select_from_enum(enum: Type[EnumType], value: Any) -> EnumType:
     """Safely select a value from an enum.
 
     Args:
@@ -101,10 +104,13 @@ def select_from_enum(enum: Any, value: Any) -> Any:
         Any: The selected value from the enum.
     """
     try:
-        return enum(value)
+        # Errors are caught
+        return enum(value)  # type: ignore[call-arg]
     except ValueError:
         logger.exception(f"Error getting value from Enum {enum}")
-        return enum.UNKNOWN
+
+        # Every Enum has an UNKNOWN in enums.py
+        return enum.UNKNOWN  # type: ignore[attr-defined]
 
 
 CastType = TypeVar("CastType")
