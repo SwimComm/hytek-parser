@@ -72,7 +72,7 @@ def e1_parser(
     )
 
     # Update event
-    file.meet.events[event_number] = event
+    file.meet.last_event = (event_number, event)
 
     return file
 
