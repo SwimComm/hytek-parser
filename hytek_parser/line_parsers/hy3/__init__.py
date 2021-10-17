@@ -6,6 +6,7 @@ from .b_meet_parsers import b1_parser, b2_parser
 from .c_team_parsers import c1_parser, c2_parser
 from .d_swimmer_parsers import d1_parser
 from .e_event_parsers import e1_parser, e2_parser
+from .f_relay_parsers import f1_parser, f2_parser, f3_parser
 
 LINE_PARSERS: dict[
     str, Callable[[str, ParsedHytekFile, dict[str, Any]], ParsedHytekFile]
@@ -23,4 +24,8 @@ LINE_PARSERS: dict[
     # Event info
     "E1": e1_parser,
     "E2": e2_parser,
+    # Relay info
+    "F1": f1_parser,
+    "F2": f2_parser,
+    "F3": f3_parser,
 }

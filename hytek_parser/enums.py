@@ -1,3 +1,5 @@
+from typing import Type
+
 from aenum import Enum, MultiValue, Unique
 
 
@@ -89,11 +91,20 @@ class WithTimeTimeCode(Enum):
     _settings_ = Unique, MultiValue
 
     NORMAL = " ", ""
+    UNKNOWN = "U"
     NO_SHOW = "R"
+    SCRATCH = "S"
+
     DISQUALIFICATION = "Q"
     FALSE_START = "F"
-    SCRATCH = "S"
-    UNKNOWN = "U"
+    DID_NOT_FINISH = "D"
+
+    @classmethod
+    def is_dq_code(cls: Type["WithTimeTimeCode"], x: "WithTimeTimeCode") -> bool:
+        """Check if this is a DQ code."""
+        return (
+            x == cls.DISQUALIFICATION or x == cls.FALSE_START or x == cls.DID_NOT_FINISH
+        )
 
 
 class DisqualificationCode(Enum):

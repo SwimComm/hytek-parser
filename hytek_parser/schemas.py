@@ -66,6 +66,7 @@ class EventEntry:
     # Entry id info
     event_number: int
     swimmers: list[Swimmer]
+    relay: bool
 
     # Seed time info
     seed_time: Union[float, ReplacedTimeTimeCode]
@@ -109,6 +110,7 @@ class EventEntry:
     def __init__(
         self,
         swimmers: list[Swimmer],
+        relay: bool,
         event_number: int,
         seed_time: Union[float, ReplacedTimeTimeCode],
         seed_course: Course,
@@ -116,6 +118,7 @@ class EventEntry:
         converted_seed_time_course: Course,
     ) -> None:
         self.swimmers = swimmers
+        self.relay = relay
         self.event_number = event_number
         self.seed_time = seed_time
         self.seed_course = seed_course
@@ -144,8 +147,12 @@ class Event:
     stroke: Stroke
     course: Course
     date_: Optional[date]
-    relay: bool
     fee: float
+
+    # Relay info - only set if relay = True
+    relay: bool
+    relay_team_id: Optional[str]
+    relay_swim_team_code: Optional[str]
 
     # Swimmer info
     gender: Gender
@@ -160,6 +167,7 @@ class Event:
     def get_or_create_entry(
         self,
         swimmers: list[Swimmer],
+        relay: bool,
         event_number: int,
         seed_time: Union[float, ReplacedTimeTimeCode],
         seed_course: Course,
@@ -169,6 +177,7 @@ class Event:
         """Get an event entry or create one if needed."""
         entry = EventEntry(
             swimmers=swimmers,
+            relay=relay,
             event_number=event_number,
             seed_time=seed_time,
             seed_course=seed_course,
@@ -284,6 +293,8 @@ class Meet:
         age_max: int,
         fee: float,
         relay: bool = False,
+        relay_team_id: str = None,
+        relay_swim_team_code: str = None,
     ) -> Event:
         """Get an event or create if needed."""
         if event := self.events.get(number):
@@ -303,6 +314,8 @@ class Meet:
                 age_max=age_max,
                 fee=fee,
                 relay=relay,
+                relay_team_id=relay_team_id,
+                relay_swim_team_code=relay_swim_team_code,
                 date_=None,
                 open_=open_event,
                 entries=[],
