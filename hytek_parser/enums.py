@@ -96,7 +96,7 @@ class WithTimeTimeCode(Enum):
 
 
 class DisqualificationCode(Enum):
-    """USA Swimming disqualifcation codes."""
+    """USA Swimming disqualification codes."""
 
     _settings_ = Unique
 
