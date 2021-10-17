@@ -141,7 +141,7 @@ def parse_time(raw_time: str) -> Union[float, ReplacedTimeTimeCode]:
     Returns:
         Union[float, ReplacedTimeTimeCode]: Either a numerical time or a time code.
     """
-    if casted := safe_cast(float, raw_time, default=-1) != -1:
+    if (casted := safe_cast(float, raw_time, default=-1)) != -1:
         # Number
         return casted
     else:
