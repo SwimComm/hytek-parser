@@ -76,6 +76,7 @@ class EventEntry:
 
     # Prelim time info
     prelim_time: Union[float, ReplacedTimeTimeCode]
+    prelim_splits: dict[int, float]
     prelim_course: Course
     prelim_time_code: WithTimeTimeCode
     prelim_dq_code: DisqualificationCode
@@ -87,6 +88,7 @@ class EventEntry:
 
     # Swimoff Time info
     swimoff_time: Union[float, ReplacedTimeTimeCode]
+    swimoff_splits: dict[int, float]
     swimoff_course: Course
     swimoff_time_code: WithTimeTimeCode
     swimoff_dq_code: DisqualificationCode
@@ -98,6 +100,7 @@ class EventEntry:
 
     # Finals time info
     finals_time: Union[float, ReplacedTimeTimeCode]
+    finals_splits: dict[int, float]
     finals_course: Course
     finals_time_code: WithTimeTimeCode
     finals_dq_code: DisqualificationCode
@@ -124,6 +127,10 @@ class EventEntry:
         self.seed_course = seed_course
         self.converted_seed_time = converted_seed_time
         self.converted_seed_time_course = converted_seed_time_course
+
+        self.prelim_splits = {}
+        self.swimoff_splits = {}
+        self.finals_splits = {}
 
     def same_swimmer_entry_as(self, other: "EventEntry") -> bool:
         """Check if two entries are for the same swimmer and event."""
