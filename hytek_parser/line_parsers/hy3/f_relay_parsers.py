@@ -9,7 +9,7 @@ from ...enums import (
     Stroke,
     WithTimeTimeCode,
 )
-from ...schemas import Gender, ParsedHytekFile, Swimmer
+from ...schemas import DisqualificationInfo, Gender, ParsedHytekFile, Swimmer
 from .._utils import extract, get_age_group, parse_time, safe_cast, select_from_enum
 
 
@@ -90,10 +90,11 @@ def f2_parser(
     course = select_from_enum(Course, extract(line, 12, 1))
     time_code = select_from_enum(WithTimeTimeCode, extract(line, 13, 1))
 
-    dq_code = None
+    dq_info = None
     if WithTimeTimeCode.is_dq_code(time_code):
         # Get the DQ code
         dq_code = select_from_enum(DisqualificationCode, extract(line, 14, 2))
+        dq_info = DisqualificationInfo(dq_code, None)
 
     heat = safe_cast(int, extract(line, 21, 3))
     lane = safe_cast(int, extract(line, 24, 3))
@@ -121,7 +122,7 @@ def f2_parser(
     setattr(entry, f"{prefix}_time", time)
     setattr(entry, f"{prefix}_course", course)
     setattr(entry, f"{prefix}_time_code", time_code)
-    setattr(entry, f"{prefix}_dq_code", dq_code)
+    setattr(entry, f"{prefix}_dq_info", dq_info)
     setattr(entry, f"{prefix}_heat", heat)
     setattr(entry, f"{prefix}_lane", lane)
     setattr(entry, f"{prefix}_heat_place", heat_place)

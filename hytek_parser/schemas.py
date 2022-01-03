@@ -59,6 +59,14 @@ class Team:
     swimmers: dict[int, Swimmer]
 
 
+@attr.s(auto_attribs=True)
+class DisqualificationInfo:
+    """Information about an event disqualification."""
+
+    code: DisqualificationCode
+    info_str: Optional[str]
+
+
 @attr.s(auto_attribs=True, init=False)
 class EventEntry:
     """Represents an entry in a meet event."""
@@ -75,40 +83,40 @@ class EventEntry:
     converted_seed_time_course: Course
 
     # Prelim time info
-    prelim_time: Union[float, ReplacedTimeTimeCode]
+    prelim_time: Optional[Union[float, ReplacedTimeTimeCode]]
     prelim_splits: dict[int, float]
-    prelim_course: Course
-    prelim_time_code: WithTimeTimeCode
-    prelim_dq_code: DisqualificationCode
-    prelim_heat: int
-    prelim_lane: int
-    prelim_heat_place: int
-    prelim_overall_place: int
-    prelim_date: date
+    prelim_course: Optional[Course]
+    prelim_time_code: Optional[WithTimeTimeCode]
+    prelim_dq_info: Optional[DisqualificationInfo]
+    prelim_heat: Optional[int]
+    prelim_lane: Optional[int]
+    prelim_heat_place: Optional[int]
+    prelim_overall_place: Optional[int]
+    prelim_date: Optional[date]
 
     # Swimoff Time info
-    swimoff_time: Union[float, ReplacedTimeTimeCode]
+    swimoff_time: Optional[Union[float, ReplacedTimeTimeCode]]
     swimoff_splits: dict[int, float]
-    swimoff_course: Course
-    swimoff_time_code: WithTimeTimeCode
-    swimoff_dq_code: DisqualificationCode
-    swimoff_heat: int
-    swimoff_lane: int
-    swimoff_heat_place: int
-    swimoff_overall_place: int
-    swimoff_date: date
+    swimoff_course: Optional[Course]
+    swimoff_time_code: Optional[WithTimeTimeCode]
+    swimoff_dq_info: Optional[DisqualificationInfo]
+    swimoff_heat: Optional[int]
+    swimoff_lane: Optional[int]
+    swimoff_heat_place: Optional[int]
+    swimoff_overall_place: Optional[int]
+    swimoff_date: Optional[date]
 
     # Finals time info
-    finals_time: Union[float, ReplacedTimeTimeCode]
+    finals_time: Optional[Union[float, ReplacedTimeTimeCode]]
     finals_splits: dict[int, float]
-    finals_course: Course
-    finals_time_code: WithTimeTimeCode
-    finals_dq_code: DisqualificationCode
-    finals_heat: int
-    finals_lane: int
-    finals_heat_place: int
-    finals_overall_place: int
-    finals_date: date
+    finals_course: Optional[Course]
+    finals_time_code: Optional[WithTimeTimeCode]
+    finals_dq_info: Optional[DisqualificationInfo]
+    finals_heat: Optional[int]
+    finals_lane: Optional[int]
+    finals_heat_place: Optional[int]
+    finals_overall_place: Optional[int]
+    finals_date: Optional[date]
 
     def __init__(
         self,
@@ -131,6 +139,10 @@ class EventEntry:
         self.prelim_splits = {}
         self.swimoff_splits = {}
         self.finals_splits = {}
+
+        self.prelim_dq_info = None
+        self.swimoff_dq_info = None
+        self.finals_dq_info = None
 
     def same_swimmer_entry_as(self, other: "EventEntry") -> bool:
         """Check if two entries are for the same swimmer and event."""
