@@ -55,6 +55,12 @@ class Team:
     country: str
     region: str
 
+    # Contact info
+    daytime_phone: str
+    evening_phone: str
+    fax: str
+    email: str
+
     # Swimmers
     swimmers: dict[int, Swimmer]
 
@@ -280,6 +286,10 @@ class Meet:
                 region="N/A",
                 state="N/A",
                 zip_code="N/A",
+                daytime_phone="N/A",
+                evening_phone="N/A",
+                fax="N/A",
+                email="N/A",
                 swimmers=dict(),
             )
 

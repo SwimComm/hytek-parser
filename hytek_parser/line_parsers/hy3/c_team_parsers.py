@@ -56,3 +56,19 @@ def c2_parser(
 
     file.meet.last_team = (team_code, team)
     return file
+
+
+def c3_parser(
+    line: str, file: ParsedHytekFile, opts: dict[str, Any]
+) -> ParsedHytekFile:
+    """Parse a C2 team contact info line."""
+    # Get the last team
+    team_code, team = file.meet.last_team
+
+    team.daytime_phone = extract(line, 33, 20) or "N/A"
+    team.evening_phone = extract(line, 53, 20) or "N/A"
+    team.fax = extract(line, 73, 20) or "N/A"
+    team.email = extract(line, 93, 36) or "N/A"
+
+    file.meet.last_team = team_code, team
+    return file
