@@ -52,6 +52,8 @@ def parse_hy3(
     # Start parsing
     parsed_file = ParsedHytekFile()
 
+    warnings = 0
+    errors = 0
     for line in lines:
         code = line[0:2]
         logger.debug(code)
@@ -65,11 +67,14 @@ def parse_hy3(
 
             if line_parser is None:
                 logger.warning(f"Invalid line code: {code}")
+                warnings += 1
                 continue
 
             parsed_file = line_parser(line, parsed_file, opts)
         except Exception:
             logger.exception("Error parsing line!")
+            errors += 1
             continue
 
+    logger.success(f"Parse completed with {warnings} warning(s) and {errors} error(s).")
     return parsed_file
