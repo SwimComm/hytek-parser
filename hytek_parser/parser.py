@@ -56,6 +56,10 @@ def parse_hy3(
         code = line[0:2]
         logger.debug(code)
 
+        if code == "Z0":
+            # End of file
+            break
+
         try:
             line_parser = LINE_PARSERS.get(code)
 
