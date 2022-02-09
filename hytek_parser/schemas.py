@@ -89,40 +89,40 @@ class EventEntry:
     converted_seed_time_course: Course
 
     # Prelim time info
-    prelim_time: Optional[Union[float, ReplacedTimeTimeCode]]
-    prelim_splits: dict[int, float]
-    prelim_course: Optional[Course]
-    prelim_time_code: Optional[WithTimeTimeCode]
-    prelim_dq_info: Optional[DisqualificationInfo]
-    prelim_heat: Optional[int]
-    prelim_lane: Optional[int]
-    prelim_heat_place: Optional[int]
-    prelim_overall_place: Optional[int]
-    prelim_date: Optional[date]
+    prelim_time: Optional[Union[float, ReplacedTimeTimeCode]] = None
+    prelim_splits: dict[int, float] = Factory(dict)
+    prelim_course: Optional[Course] = None
+    prelim_time_code: Optional[WithTimeTimeCode] = None
+    prelim_dq_info: Optional[DisqualificationInfo] = None
+    prelim_heat: Optional[int] = None
+    prelim_lane: Optional[int] = None
+    prelim_heat_place: Optional[int] = None
+    prelim_overall_place: Optional[int] = None
+    prelim_date: Optional[date] = None
 
     # Swimoff Time info
-    swimoff_time: Optional[Union[float, ReplacedTimeTimeCode]]
-    swimoff_splits: dict[int, float]
-    swimoff_course: Optional[Course]
-    swimoff_time_code: Optional[WithTimeTimeCode]
-    swimoff_dq_info: Optional[DisqualificationInfo]
-    swimoff_heat: Optional[int]
-    swimoff_lane: Optional[int]
-    swimoff_heat_place: Optional[int]
-    swimoff_overall_place: Optional[int]
-    swimoff_date: Optional[date]
+    swimoff_time: Optional[Union[float, ReplacedTimeTimeCode]] = None
+    swimoff_splits: dict[int, float] = Factory(dict)
+    swimoff_course: Optional[Course] = None
+    swimoff_time_code: Optional[WithTimeTimeCode] = None
+    swimoff_dq_info: Optional[DisqualificationInfo] = None
+    swimoff_heat: Optional[int] = None
+    swimoff_lane: Optional[int] = None
+    swimoff_heat_place: Optional[int] = None
+    swimoff_overall_place: Optional[int] = None
+    swimoff_date: Optional[date] = None
 
     # Finals time info
-    finals_time: Optional[Union[float, ReplacedTimeTimeCode]]
-    finals_splits: dict[int, float]
-    finals_course: Optional[Course]
-    finals_time_code: Optional[WithTimeTimeCode]
-    finals_dq_info: Optional[DisqualificationInfo]
-    finals_heat: Optional[int]
-    finals_lane: Optional[int]
-    finals_heat_place: Optional[int]
-    finals_overall_place: Optional[int]
-    finals_date: Optional[date]
+    finals_time: Optional[Union[float, ReplacedTimeTimeCode]] = None
+    finals_splits: dict[int, float] = Factory(dict)
+    finals_course: Optional[Course] = None
+    finals_time_code: Optional[WithTimeTimeCode] = None
+    finals_dq_info: Optional[DisqualificationInfo] = None
+    finals_heat: Optional[int] = None
+    finals_lane: Optional[int] = None
+    finals_heat_place: Optional[int] = None
+    finals_overall_place: Optional[int] = None
+    finals_date: Optional[date] = None
 
     def __init__(
         self,
@@ -142,9 +142,17 @@ class EventEntry:
         self.converted_seed_time = converted_seed_time
         self.converted_seed_time_course = converted_seed_time_course
 
-        self.prelim_splits = {}
-        self.swimoff_splits = {}
-        self.finals_splits = {}
+        for course in ("prelim", "swimoff", "finals"):
+            setattr(self, f"{course}_time", None)
+            setattr(self, f"{course}_splits", dict())
+            setattr(self, f"{course}_course", None)
+            setattr(self, f"{course}_time_code", None)
+            setattr(self, f"{course}_dq_info", None)
+            setattr(self, f"{course}_heat", None)
+            setattr(self, f"{course}_lane", None)
+            setattr(self, f"{course}_heat_place", None)
+            setattr(self, f"{course}_overall_place", None)
+            setattr(self, f"{course}_date", None)
 
         self.prelim_dq_info = None
         self.swimoff_dq_info = None
