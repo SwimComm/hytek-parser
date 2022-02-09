@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from typing import Optional, Union
 
-import attr
+from attrs import Factory, define, field
 
 from .enums import (
     Course,
@@ -15,7 +15,7 @@ from .enums import (
 )
 
 
-@attr.s(auto_attribs=True, init=False)
+@define(init=False)
 class Swimmer:
     """Represents a swimmer in a meet."""
 
@@ -37,7 +37,7 @@ class Swimmer:
     team_code: str
 
 
-@attr.s(auto_attribs=True)
+@define
 class Team:
     """Represents a swim team."""
 
@@ -62,18 +62,18 @@ class Team:
     email: str
 
     # Swimmers
-    swimmers: dict[int, Swimmer]
+    swimmers: dict[int, Swimmer] = Factory(dict)
 
 
-@attr.s(auto_attribs=True)
+@define
 class DisqualificationInfo:
     """Information about an event disqualification."""
 
     code: DisqualificationCode
-    info_str: Optional[str]
+    info_str: Optional[str] = None
 
 
-@attr.s(auto_attribs=True, init=False)
+@define(init=False)
 class EventEntry:
     """Represents an entry in a meet event."""
 
@@ -162,7 +162,7 @@ class EventEntry:
         )
 
 
-@attr.s(auto_attribs=True)
+@define
 class Event:
     """Represents a meet event."""
 
@@ -187,7 +187,7 @@ class Event:
     open_: bool
 
     # Entires
-    entries: list[EventEntry]
+    entries: list[EventEntry] = Factory(list)
 
     def get_or_create_entry(
         self,
@@ -228,7 +228,7 @@ class Event:
         self.entries[-1] = entry
 
 
-@attr.s(auto_attribs=True, init=False)
+@define(init=False)
 class Meet:
     """Represents a swim meet.
 
@@ -254,13 +254,13 @@ class Meet:
     events: dict[int, Event]
 
     # Bookeeping
-    _last_team: tuple[str, Team] = attr.ib(default=None)
-    _last_event: tuple[int, Event] = attr.ib(default=None)
+    _last_team: tuple[str, Team] = field(default=None)
+    _last_event: tuple[int, Event] = field(default=None)
 
     def __init__(self) -> None:
-        self.teams = {}
-        self.swimmers = {}
-        self.events = {}
+        self.teams = dict()
+        self.swimmers = dict()
+        self.events = dict()
         super().__init__()
 
     def add_swimmer(self, swimmer: Swimmer) -> None:
@@ -290,7 +290,6 @@ class Meet:
                 evening_phone="N/A",
                 fax="N/A",
                 email="N/A",
-                swimmers=dict(),
             )
 
             # Add team, this also updates the teams dict
@@ -347,7 +346,6 @@ class Meet:
                 relay_swim_team_code=relay_swim_team_code,
                 date_=None,
                 open_=open_event,
-                entries=[],
             )
 
             # Add event, this also updates the events dict
@@ -368,7 +366,7 @@ class Meet:
         self.events[number] = event
 
 
-@attr.s(auto_attribs=True)
+@define
 class Software:
     """Represents a Hytek software version."""
 
@@ -376,7 +374,7 @@ class Software:
     version: str
 
 
-@attr.s(auto_attribs=True, init=False)
+@define(init=False)
 class ParsedHytekFile:
     """Represents a parsed Hytek file."""
 
