@@ -4,18 +4,25 @@
 
 <h1 align="center">Hytek Parser</h1>
 
-<p align="center">
+<div align="center">
+  <a href="https://github.com/SwimComm/hytek-parser">
+    <img src="https://img.shields.io/github/repo-size/SwimComm/hytek-parser?style=for-the-badge" alt="Repository size" />
+  </a>
 
-  [![Repository size](https://img.shields.io/github/repo-size/SwimComm/hytek-parser?style=for-the-badge)](https://github.com/SwimComm/hytek-parser)
+  <a href="./LICENSE.md" >
+    <img src="https://img.shields.io/github/license/SwimComm/hytek-parser?style=for-the-badge" alt="License" />
+  </a>
 
-  [![License](https://img.shields.io/github/license/SwimComm/hytek-parser?style=for-the-badge)](./LICENSE.md)
+  <a href="https://github.com/SwimComm/hytek-parser/issues" >
+    <img src="https://img.shields.io/github/issues/SwimComm/hytek-parser?style=for-the-badge" alt="Github issues" />
+  </a>
 
-  [![Github issues](https://img.shields.io/github/issues/SwimComm/hytek-parser?style=for-the-badge)](https://github.com/SwimComm/hytek-parser/issues)
+  <a href="https://github.com/SwimComm/hytek-parser/pulls">
+    <img src="https://img.shields.io/github/issues-pr/SwimComm/hytek-parser?style=for-the-badge" alt="Github pull requests" />
+  </a>
 
-  [![Github pull requests](https://img.shields.io/github/issues-pr/SwimComm/hytek-parser?style=for-the-badge)](https://github.com/SwimComm/hytek-parser/pulls)
-
-  ![Github stars](https://img.shields.io/github/stars/SwimComm/hytek-parser?style=for-the-badge)
-</p>
+  <img src="https://img.shields.io/github/stars/SwimComm/hytek-parser?style=for-the-badge" alt="Github stars" />
+</div>
 
 ## :page_with_curl: Table of contents
 - [:page_with_curl: Table of contents](#page_with_curl-table-of-contents)
