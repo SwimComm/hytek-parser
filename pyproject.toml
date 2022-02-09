@@ -64,7 +64,9 @@ select = "A,ANN,B,C,D,E,EXE,F,N,W,B950"
 exclude = ".git,__pycache__,__init__.py,logs,.venv,.cache,.mypy_cache,.pytest_cache"
 
 [tool.mypy]
+exclude = ['.mypy_cache', '.venv']
 ignore_missing_imports = true
+ignore_missing_imports_per_module = true
 disallow_untyped_defs = true
 show_error_codes = true
 

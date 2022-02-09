@@ -1,5 +1,5 @@
 {
-    "cmake.configureOnOpen": false,
-    "python.linting.mypyEnabled": true,
+    "python.linting.mypyEnabled": false,
+    "mypy.runUsingActiveInterpreter": true,
     "python.pythonPath": ".venv\\Scripts\\python.exe"
 }
