@@ -1,4 +1,6 @@
 """Header lists for the `csv.DictReader` when reading Hytek-produced CSVs."""
+from csv import DictReader
+from functools import partial
 
 EVENT_RESULT_CSV_HEADER = [
     "licensee",
@@ -187,3 +189,7 @@ EVENT_RESULT_CSV_HEADER = [
     "unknown_144",
     "unknown_145",
 ]
+
+HytekExportCsvReader = partial(DictReader, fieldnames=EVENT_RESULT_CSV_HEADER)
+
+__all__ = ["EVENT_RESULT_CSV_HEADER", "HytekExportCsvReader"]
