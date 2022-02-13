@@ -22,7 +22,6 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.9"
-loguru = "^0.5.3"
 attrs = "^21.4.0"
 aenum = "^3.1.8"
 xlrd = "^2.0.1"

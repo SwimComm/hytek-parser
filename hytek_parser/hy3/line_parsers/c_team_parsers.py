@@ -1,8 +1,6 @@
 import re
 from typing import Any
 
-from loguru import logger
-
 from hytek_parser._utils import extract
 from hytek_parser.hy3.schemas import ParsedHytekFile
 
@@ -22,7 +20,7 @@ def c1_parser(
         team_code = raw_team_code
     else:
         # Generate our own team code
-        logger.warning(f"No team code found for team {team_name}, generating.")
+        # logger.warning(f"No team code found for team {team_name}, generating.")
 
         # Join first two letters of each work of uppercased full team name
         # Then truncate to 5 chars

@@ -1,13 +1,8 @@
 from datetime import datetime
 from typing import Any
 
-from hytek_parser._utils import (
-    extract,
-    get_age_group,
-    parse_time,
-    safe_cast,
-    select_from_enum,
-)
+from hytek_parser._utils import extract, get_age_group, safe_cast, select_from_enum
+from hytek_parser.hy3._utils import parse_time
 from hytek_parser.hy3.enums import (
     Course,
     DisqualificationCode,

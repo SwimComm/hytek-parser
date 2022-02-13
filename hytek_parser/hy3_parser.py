@@ -1,7 +1,5 @@
 from typing import Any
 
-from loguru import logger
-
 from hytek_parser.hy3 import HY3_LINE_PARSERS
 from hytek_parser.hy3.schemas import ParsedHytekFile
 from hytek_parser.types import StrOrBytesPath
@@ -20,12 +18,9 @@ def parse_hy3(
     Returns:
         ParsedHytekFile: The parsed file.
     """
-    logger.info(f"Parsing Hytek meet entries file {file!r}.")
-
     # TODO: Implement checksum validation
     if validate_checksums:
-        logger.warning("Checksum validation not implemented, ignoring.")
-        validate_checksums = False
+        raise NotImplementedError("Checksum validation is not implement yet.")
 
     # Set options dict
     opts: dict[str, Any] = {
@@ -52,7 +47,7 @@ def parse_hy3(
     errors = 0
     for line in lines:
         code = line[0:2]
-        logger.debug(code)
+        # logger.debug(code)
 
         if code == "Z0":
             # End of file
@@ -62,15 +57,17 @@ def parse_hy3(
             line_parser = HY3_LINE_PARSERS.get(code)
 
             if line_parser is None:
-                logger.warning(f"Invalid line code: {code}")
+                # logger.warning(f"Invalid line code: {code}")
                 warnings += 1
                 continue
 
             parsed_file = line_parser(line, parsed_file, opts)
         except Exception:
-            logger.exception("Error parsing line!")
+            # logger.exception("Error parsing line!")
             errors += 1
             continue
 
-    logger.success(f"Parse completed with {warnings} warning(s) and {errors} error(s).")
+    # logger.success(
+    #     f"Parse completed with {warnings} warning(s) and {errors} error(s)."
+    # )
     return parsed_file

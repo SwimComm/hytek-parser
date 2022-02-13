@@ -1,8 +1,4 @@
-from typing import Any, Optional, Type, TypeVar, Union
-
-from loguru import logger
-
-from hytek_parser.hy3.enums import ReplacedTimeTimeCode
+from typing import Any, Optional, Type, TypeVar
 
 
 def extract(string: str, start: int, len_: int) -> str:
@@ -107,8 +103,6 @@ def select_from_enum(enum: Type[EnumType], value: Any) -> EnumType:
         # Errors are caught
         return enum(value)  # type: ignore[call-arg]
     except ValueError:
-        logger.exception(f"Error getting value from Enum {enum}")
-
         # Every Enum has an UNKNOWN in enums.py
         return enum.UNKNOWN  # type: ignore[attr-defined]
 
@@ -136,19 +130,3 @@ def safe_cast(type_: Type[CastType], value: Any, default: Any = None) -> CastTyp
             return default
         else:
             return type_()
-
-
-def parse_time(raw_time: str) -> Union[float, ReplacedTimeTimeCode]:
-    """Parse a time into either a number or time code.
-
-    Args:
-        raw_time (str): The time string extracted from the Hytek file.
-
-    Returns:
-        Union[float, ReplacedTimeTimeCode]: Either a numerical time or a time code.
-    """
-    if (casted := safe_cast(float, raw_time, default=-1)) != -1:
-        # Number
-        return casted
-    else:
-        return select_from_enum(ReplacedTimeTimeCode, raw_time)
