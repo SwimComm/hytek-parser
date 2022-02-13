@@ -1,6 +1,7 @@
 from typing import Any, Callable
 
-from ...schemas import ParsedHytekFile
+from hytek_parser.hy3.schemas import ParsedHytekFile
+
 from .a_file_parsers import a1_parser
 from .b_meet_parsers import b1_parser, b2_parser
 from .c_team_parsers import c1_parser, c2_parser, c3_parser

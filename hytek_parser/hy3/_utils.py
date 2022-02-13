@@ -2,7 +2,7 @@ from typing import Any, Optional, Type, TypeVar, Union
 
 from loguru import logger
 
-from ..enums import ReplacedTimeTimeCode
+from hytek_parser.hy3.enums import ReplacedTimeTimeCode
 
 
 def extract(string: str, start: int, len_: int) -> str:

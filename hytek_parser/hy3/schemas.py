@@ -3,7 +3,7 @@ from typing import Optional, Union
 
 from attrs import Factory, define, field
 
-from .enums import (
+from hytek_parser.hy3.enums import (
     Course,
     DisqualificationCode,
     Gender,

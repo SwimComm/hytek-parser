@@ -3,8 +3,8 @@ from typing import Any, Union
 
 from loguru import logger
 
-from .line_parsers.hy3 import LINE_PARSERS
-from .schemas import ParsedHytekFile
+from hytek_parser.hy3 import LINE_PARSERS
+from hytek_parser.hy3.schemas import ParsedHytekFile
 
 StrOrBytesPath = Union[
     str, bytes, PathLike[str], PathLike[bytes]

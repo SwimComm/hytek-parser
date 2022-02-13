@@ -1,8 +1,8 @@
 from typing import Any
 
-from ...enums import DisqualificationCode
-from ...schemas import ParsedHytekFile
-from .._utils import extract, select_from_enum
+from hytek_parser.hy3._utils import extract, select_from_enum
+from hytek_parser.hy3.enums import DisqualificationCode
+from hytek_parser.hy3.schemas import ParsedHytekFile
 
 
 def h1_parser(

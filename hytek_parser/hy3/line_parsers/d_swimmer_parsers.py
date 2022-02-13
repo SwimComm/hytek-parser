@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import Any
 
-from ...schemas import Gender, ParsedHytekFile, Swimmer
-from .._utils import extract, select_from_enum
+from hytek_parser.hy3._utils import extract, select_from_enum
+from hytek_parser.hy3.schemas import Gender, ParsedHytekFile, Swimmer
 
 
 def d1_parser(

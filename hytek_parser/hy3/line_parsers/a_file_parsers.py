@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import Any
 
-from ...schemas import ParsedHytekFile, Software
-from .._utils import extract
+from hytek_parser.hy3._utils import extract
+from hytek_parser.hy3.schemas import ParsedHytekFile, Software
 
 
 def a1_parser(

@@ -59,9 +59,11 @@ precommit = { cmd = "pre-commit install --hook-type pre-commit --hook-type commi
 [tool.flake8]
 max-line-length = 80
 ignore = "D203,E203,E501,W503,D100,D104,D105,D107,ANN101,ANN002,ANN003,ANN204"
+per-file-ignores = '**/__init__.py:I252'
 max-complexity = 10
-select = "A,ANN,B,C,D,E,EXE,F,N,W,B950"
-exclude = ".git,__pycache__,__init__.py,logs,.venv,.cache,.mypy_cache,.pytest_cache"
+select = "A,ANN,B,C,D,E,EXE,F,I,N,W,B950"
+exclude = ".git,__pycache__,logs,.venv,.cache,.mypy_cache,.pytest_cache"
+ban-relative-imports = "true"
 
 [tool.mypy]
 exclude = ['.mypy_cache', '.venv']

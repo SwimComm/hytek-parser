@@ -3,8 +3,8 @@ from typing import Any
 
 from loguru import logger
 
-from ...schemas import ParsedHytekFile
-from .._utils import extract
+from hytek_parser.hy3._utils import extract
+from hytek_parser.hy3.schemas import ParsedHytekFile
 
 TEAM_CODE_REGEX = re.compile(r"\b(\w\w)")
 

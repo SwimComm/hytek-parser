@@ -1,7 +1,14 @@
 from datetime import datetime
 from typing import Any
 
-from ...enums import (
+from hytek_parser.hy3._utils import (
+    extract,
+    get_age_group,
+    parse_time,
+    safe_cast,
+    select_from_enum,
+)
+from hytek_parser.hy3.enums import (
     Course,
     DisqualificationCode,
     Gender,
@@ -10,8 +17,7 @@ from ...enums import (
     Stroke,
     WithTimeTimeCode,
 )
-from ...schemas import DisqualificationInfo, ParsedHytekFile
-from .._utils import extract, get_age_group, parse_time, safe_cast, select_from_enum
+from hytek_parser.hy3.schemas import DisqualificationInfo, ParsedHytekFile
 
 
 def e1_parser(
