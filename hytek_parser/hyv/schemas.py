@@ -17,7 +17,6 @@ class EventExport:
 
     min_age: int
     max_age: int
-    open_: bool
 
     distance: int
     stroke: Stroke
@@ -32,6 +31,11 @@ class EventExport:
     unknown8_time: str
     unknown9: str
     unknown10: str
+
+    @property
+    def open_(self) -> bool:
+        """Get if this is an open event."""
+        return self.min_age == 0 and (self.max_age == 0 or self.max_age == 109)
 
 
 @define

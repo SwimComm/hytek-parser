@@ -65,9 +65,6 @@ def parse_event_hyv(file: StrOrBytesPath) -> ParsedEventHyvFile:
         events: list[EventExport] = []
         reader = EventHyvReader(f)
         for line in reader:
-            min_age = safe_cast(int, line["event_min_age"])
-            max_age = safe_cast(int, line["event_max_age"])
-
             events.append(
                 EventExport(
                     number=safe_cast(int, line["event_no"]),
@@ -78,9 +75,8 @@ def parse_event_hyv(file: StrOrBytesPath) -> ParsedEventHyvFile:
                     swimmer_type=select_from_enum(
                         SwimmersEventType, line["event_swimmers_type"]
                     ),
-                    min_age=min_age,
-                    max_age=max_age,
-                    open_=min_age == 0 and (max_age == 0 or max_age == 109),
+                    min_age=safe_cast(int, line["event_min_age"]),
+                    max_age=safe_cast(int, line["event_max_age"]),
                     distance=safe_cast(int, line["event_distance"]),
                     stroke=select_from_enum(Stroke, line["event_stroke"]),
                     unknown1=line["unknown1"],
