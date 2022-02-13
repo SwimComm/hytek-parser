@@ -1,14 +1,10 @@
-from os import PathLike
-from typing import Any, Union
+from typing import Any
 
 from loguru import logger
 
 from hytek_parser.hy3 import LINE_PARSERS
 from hytek_parser.hy3.schemas import ParsedHytekFile
-
-StrOrBytesPath = Union[
-    str, bytes, PathLike[str], PathLike[bytes]
-]  # from python/typeshed
+from hytek_parser.types import StrOrBytesPath
 
 
 def parse_hy3(
