@@ -13,7 +13,7 @@ from ._utils import (
 )
 from .schemas import EventResultEntry, ParsedEventResultXlsFile
 
-__all__ = ["parse_event_export_xls", "ExportXlsParseError"]
+__all__ = ["ExportXlsParseError", "parse_event_export_xls"]
 
 _ALL_PARSING_ELEMENTS = [
     "name",

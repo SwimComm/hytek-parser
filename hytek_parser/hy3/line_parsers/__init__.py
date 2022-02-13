@@ -11,7 +11,9 @@ from .f_relay_parsers import f1_parser, f2_parser, f3_parser
 from .g_split_parsers import g1_parser
 from .h_dq_parsers import h1_parser
 
-LINE_PARSERS: dict[
+__all__ = ["HY3_LINE_PARSERS"]
+
+HY3_LINE_PARSERS: dict[
     str, Callable[[str, ParsedHytekFile, dict[str, Any]], ParsedHytekFile]
 ] = {
     # File info

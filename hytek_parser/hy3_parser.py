@@ -2,7 +2,7 @@ from typing import Any
 
 from loguru import logger
 
-from hytek_parser.hy3 import LINE_PARSERS
+from hytek_parser.hy3 import HY3_LINE_PARSERS
 from hytek_parser.hy3.schemas import ParsedHytekFile
 from hytek_parser.types import StrOrBytesPath
 
@@ -59,7 +59,7 @@ def parse_hy3(
             break
 
         try:
-            line_parser = LINE_PARSERS.get(code)
+            line_parser = HY3_LINE_PARSERS.get(code)
 
             if line_parser is None:
                 logger.warning(f"Invalid line code: {code}")
