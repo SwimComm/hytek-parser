@@ -36,15 +36,13 @@ EventHyvReader = partial(DictReader, fieldnames=EVENT_HYV_CSV_HEADER, delimiter=
 
 
 def parse_event_hyv(file: StrOrBytesPath) -> ParsedEventHyvFile:
-    """Parse a Hytek MeetManager .hy3 file.
+    """Parse a Hytek MeetManager .hyv event export file.
 
     Args:
         file (StrOrBytesPath): A path to the file to parse.
-        validate_checksums (bool, optional): Validate line checksums. Defaults to False.
-        default_country (str, optional): Default country for meet. Defaults to "USA".
 
     Returns:
-        ParsedHytekFile: The parsed file.
+        ParsedEventHyvFile: The parsed file.
     """
     with open(file, "r") as f:
         first_line_reader = csv.reader(f, delimiter=";")
