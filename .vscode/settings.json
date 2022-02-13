@@ -3,5 +3,10 @@
     "mypy.runUsingActiveInterpreter": true,
     "python.pythonPath": ".venv\\Scripts\\python.exe",
     "python.linting.flake8Path": ".\\.venv\\Scripts\\pflake8.exe",
-    "python.linting.flake8Args": []
+    "python.linting.flake8Args": [],
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
 }
