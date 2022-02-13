@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any
 
-from hytek_parser.hy3._utils import extract, select_from_enum
+from hytek_parser._utils import extract, select_from_enum
 from hytek_parser.hy3.enums import Course, MeetType
 from hytek_parser.hy3.schemas import Meet, ParsedHytekFile
 
