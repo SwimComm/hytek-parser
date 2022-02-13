@@ -16,14 +16,15 @@ class Gender(Enum):
 class Stroke(Enum):
     """Types of swimming strokes."""
 
-    _settings_ = Unique
+    _settings_ = Unique, MultiValue
 
-    FREESTYLE = "A"
-    BACKSTROKE = "B"
-    BREASTSTROKE = "C"
-    BUTTERFLY = "D"
-    MEDELY = "E"
-    UNKNOWN = "U"
+    FREESTYLE = "A", "1", 1
+    BACKSTROKE = "B", "2", 2
+    BREASTSTROKE = "C", "3", 3
+    BUTTERFLY = "D", "4", 4
+    MEDELY = "E", "5", 5
+
+    UNKNOWN = "U", "0", 0
 
 
 class MeetType(Enum):

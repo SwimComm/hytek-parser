@@ -4,7 +4,7 @@ from datetime import datetime
 from functools import partial
 
 from hytek_parser._utils import safe_cast, select_from_enum
-from hytek_parser.hy3.enums import Course, Gender
+from hytek_parser.hy3.enums import Course, Gender, Stroke
 from hytek_parser.hyv.enums import ChampionshipEventType, SwimmersEventType
 from hytek_parser.hyv.schemas import EventExport, ParsedEventHyvFile
 from hytek_parser.types import DictReader, StrOrBytesPath
@@ -19,7 +19,7 @@ EVENT_HYV_CSV_HEADER = [
     "event_min_age",
     "event_max_age",
     "event_distance",
-    "heats?",
+    "event_stroke",
     "unknown1",
     "unknown2_time",
     "unknown3",
@@ -82,7 +82,7 @@ def parse_event_hyv(file: StrOrBytesPath) -> ParsedEventHyvFile:
                     max_age=max_age,
                     open_=min_age == 0 and (max_age == 0 or max_age == 109),
                     distance=safe_cast(int, line["event_distance"]),
-                    num_heats_maybe=safe_cast(int, line["heats?"]),
+                    stroke=select_from_enum(Stroke, line["event_stroke"]),
                     unknown1=line["unknown1"],
                     unknown2_time=line["unknown2_time"],
                     unknown3=line["unknown3"],

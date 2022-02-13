@@ -2,7 +2,7 @@ from datetime import date
 
 from attrs import define
 
-from hytek_parser.hy3.enums import Course, Gender
+from hytek_parser.hy3.enums import Course, Gender, Stroke
 from hytek_parser.hyv.enums import ChampionshipEventType, SwimmersEventType
 
 
@@ -20,7 +20,7 @@ class EventExport:
     open_: bool
 
     distance: int
-    num_heats_maybe: int
+    stroke: Stroke
 
     unknown1: str
     unknown2_time: str
