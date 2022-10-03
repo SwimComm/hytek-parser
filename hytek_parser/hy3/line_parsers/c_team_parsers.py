@@ -22,7 +22,7 @@ def c1_parser(
         # Generate our own team code
         # logger.warning(f"No team code found for team {team_name}, generating.")
 
-        # Join first two letters of each work of uppercased full team name
+        # Join first two letters of each word of uppercased full team name
         # Then truncate to 5 chars
         team_code = "".join(TEAM_CODE_REGEX.findall(team_name.upper()))[:5]
 
