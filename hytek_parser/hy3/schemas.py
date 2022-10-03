@@ -31,10 +31,10 @@ class Swimmer:
     middle_initial: str
 
     # ID numbers
-    meet_id: int
-    team_id: int
+    meet_id: int  # ID in the meet database
+    team_id: int  # ID in the team database
     usa_swimming_id: str
-    team_code: str
+    team_code: str  # Team 5-letter code
 
 
 @define
