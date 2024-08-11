@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "hytek-parser"
-version = "1.1.0"
+version = "1.1.1"
 description = "Parsers for the files produced by Hytek's Meet Manager."
 license = "MIT"
 authors = ["Nino Maruszewski <nino.maruszewski@hotmail.com>"]
