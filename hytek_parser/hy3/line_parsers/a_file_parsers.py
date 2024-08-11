@@ -17,7 +17,7 @@ def a1_parser(
     if raw_date[9] == " ":
         raw_date = raw_date[:9] + "0" + raw_date[10:]
 
-    file.date_created = datetime.strptime(raw_date, "%d%m%Y %I:%M %p")
+    file.date_created = datetime.strptime(raw_date, "%m%d%Y %I:%M %p")
     file.licensee = extract(line, 76, 53)
 
     return file
