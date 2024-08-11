@@ -269,7 +269,8 @@ class Meet:
         self.teams = dict()
         self.swimmers = dict()
         self.events = dict()
-        super().__init__()
+        
+        super(Meet, self).__init__()
 
     def add_swimmer(self, swimmer: Swimmer) -> None:
         """Add a swimmer to the meet."""
