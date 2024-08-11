@@ -47,7 +47,6 @@ def parse_hy3(
     errors = 0
     for line in lines:
         code = line[0:2]
-        # logger.debug(code)
 
         if code == "Z0":
             # End of file
@@ -57,15 +56,13 @@ def parse_hy3(
             line_parser = HY3_LINE_PARSERS.get(code)
 
             if line_parser is None:
-                # logger.warning(f"Invalid line code: {code}")
-                warnings += 1
+                print(f"Invalid line code: {code}")  # TODO: raise an actual warning
                 continue
 
             parsed_file = line_parser(line, parsed_file, opts)
-        except Exception:
-            # logger.exception("Error parsing line!")
-            errors += 1
-            continue
+        except Exception as e:
+            msg = "Exception while parsing, please open an issue with full traceback at https://github.com/SwimComm/hytek-parser/issues/new/choose"
+            raise RuntimeError(msg) from e  # TODO: actual error handling
 
     # logger.success(
     #     f"Parse completed with {warnings} warning(s) and {errors} error(s)."
