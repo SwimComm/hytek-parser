@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any
 
-from hytek_parser._utils import extract, select_from_enum
+from hytek_parser._utils import extract, select_from_enum, int_or_none
 from hytek_parser.hy3.schemas import Gender, ParsedHytekFile, Swimmer
 
 
@@ -20,11 +20,8 @@ def d1_parser(
     swimmer.first_name = extract(line, 29, 20)
     swimmer.nick_name = extract(line, 49, 20)
     swimmer.middle_initial = extract(line, 69, 1)
-
     swimmer.usa_swimming_id = extract(line, 70, 14)
-    if team_id := extract(line, 84, 5):
-        swimmer.team_id = int(team_id)
-
+    swimmer.team_id = int_or_none(extract(line, 84, 5))
     swimmer.date_of_birth = datetime.strptime(extract(line, 89, 8), "%m%d%Y").date()
     swimmer.age = int(extract(line, 97, 3))
 

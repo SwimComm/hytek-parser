@@ -130,3 +130,13 @@ def safe_cast(type_: Type[CastType], value: Any, default: Any = None) -> CastTyp
             return default
         else:
             return type_()
+
+def int_or_none(value:str|None) -> int|None:
+    """Safely return either an int from a numeric string value, or None
+    
+    Args:
+        value (str|None): The value to cast to int 
+    
+    Returns:
+        int|None: Either the parsed int value or None"""
+    return int(value) if value and value.isdigit() else None

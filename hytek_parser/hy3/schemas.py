@@ -32,7 +32,7 @@ class Swimmer:
 
     # ID numbers
     meet_id: int  # ID in the meet database
-    team_id: int  # ID in the team database
+    team_id: int|None  # ID in the team database
     usa_swimming_id: str
     team_code: str  # Team 5-letter code
 
@@ -248,7 +248,7 @@ class Meet:
     facility: str
     start_date: date
     end_date: date
-    altitude: int
+    altitude: int|None
     country: str
 
     # Secondary info
