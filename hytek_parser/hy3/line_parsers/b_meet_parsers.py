@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any
 
-from hytek_parser._utils import extract, select_from_enum
+from hytek_parser._utils import extract, select_from_enum, int_or_none
 from hytek_parser.hy3.enums import Course, MeetType
 from hytek_parser.hy3.schemas import Meet, ParsedHytekFile
 
@@ -16,7 +16,7 @@ def b1_parser(
     meet.facility = extract(line, 48, 45)
     meet.start_date = datetime.strptime(extract(line, 93, 8), "%m%d%Y").date()
     meet.end_date = datetime.strptime(extract(line, 101, 8), "%m%d%Y").date()
-    meet.altitude = int(extract(line, 117, 5))
+    meet.altitude = int_or_none(extract(line, 117, 5))
     # TODO: Find meet country
     meet.country = opts["default_country"]
 
