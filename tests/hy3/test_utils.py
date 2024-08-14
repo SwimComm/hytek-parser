@@ -1,5 +1,6 @@
 import unittest
-from hytek_parser._utils import safe_cast, int_or_none
+from hytek_parser._utils import safe_cast, int_or_none, select_from_enum
+from hytek_parser.hy3.schemas import Stroke
 
 class TestUtils(unittest.TestCase):
     
@@ -17,7 +18,12 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(None, int_or_none(""))
         self.assertEqual(1, int_or_none("1"))
         self.assertEqual(1, int_or_none("1"))
-            
+             
+    def test_select_from_enum(self) -> None:
+        self.assertEqual(Stroke.FREESTYLE, select_from_enum(Stroke, "A")) 
+        self.assertEqual(Stroke.FREESTYLE, select_from_enum(Stroke, 1)) 
+        self.assertEqual(Stroke.UNKNOWN, select_from_enum(Stroke, "foo"))
+                   
 if __name__=='__main__':
 	unittest.main()
          

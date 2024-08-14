@@ -1,5 +1,6 @@
 import unittest
 from datetime import datetime
+from typing import Any
 from hytek_parser.hy3.schemas import ParsedHytekFile
 from hytek_parser.hy3.line_parsers.d_swimmer_parsers import d1_parser
 from hytek_parser.hy3.schemas import Meet, Team, Gender
@@ -11,7 +12,7 @@ class TestDSwimmerParser(unittest.TestCase):
         file = ParsedHytekFile()
         file.meet = Meet()
         file.meet.last_team=("FOO", Team("Foo Bar", "FOO", "foo","","","","","","","","","","","",{}))
-        opts = {}
+        opts: dict[str, Any] = {}
         result = d1_parser(line, file, opts)
         for swimmer in result.meet.swimmers.values():
             self.assertEqual(8, swimmer.age)
