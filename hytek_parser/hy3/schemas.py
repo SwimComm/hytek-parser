@@ -78,7 +78,7 @@ class EventEntry:
     """Represents an entry in a meet event."""
 
     # Entry id info
-    event_number: int
+    event_number: str
     swimmers: list[Swimmer]
     relay: bool
 
@@ -128,7 +128,7 @@ class EventEntry:
         self,
         swimmers: list[Swimmer],
         relay: bool,
-        event_number: int,
+        event_number: str,
         seed_time: Union[float, ReplacedTimeTimeCode],
         seed_course: Course,
         converted_seed_time: Union[float, ReplacedTimeTimeCode],
@@ -175,7 +175,7 @@ class Event:
     """Represents a meet event."""
 
     # ID info
-    number: int
+    number: str
     distance: int
     stroke: Stroke
     course: Course
@@ -201,7 +201,7 @@ class Event:
         self,
         swimmers: list[Swimmer],
         relay: bool,
-        event_number: int,
+        event_number: str,
         seed_time: Union[float, ReplacedTimeTimeCode],
         seed_course: Course,
         converted_seed_time: Union[float, ReplacedTimeTimeCode],
@@ -259,11 +259,11 @@ class Meet:
     # Entries
     teams: dict[str, Team]
     swimmers: dict[int, Swimmer]
-    events: dict[int, Event]
+    events: dict[str, Event]
 
     # Bookeeping
     _last_team: tuple[str, Team] = field(default=None)
-    _last_event: tuple[int, Event] = field(default=None)
+    _last_event: tuple[str, Event] = field(default=None)
 
     def __init__(self) -> None:
         self.teams = dict()
@@ -320,7 +320,7 @@ class Meet:
 
     def get_or_create_event(
         self,
-        number: int,
+        number: str,
         distance: int,
         stroke: Stroke,
         course: Course,
@@ -330,8 +330,8 @@ class Meet:
         age_max: int,
         fee: float,
         relay: bool = False,
-        relay_team_id: str = None,
-        relay_swim_team_code: str = None,
+        relay_team_id: str|None = None,
+        relay_swim_team_code: str|None = None,
     ) -> Event:
         """Get an event or create if needed."""
         if event := self.events.get(number):
@@ -362,12 +362,12 @@ class Meet:
             return event
 
     @property
-    def last_event(self) -> tuple[int, Event]:
+    def last_event(self) -> tuple[str, Event]:
         """Get the last defined event as (event_number, Event)."""
         return self._last_event
 
     @last_event.setter
-    def last_event(self, event_info: tuple[int, Event]) -> None:
+    def last_event(self, event_info: tuple[str, Event]) -> None:
         """Set the last event."""
         self._last_event = event_info
 

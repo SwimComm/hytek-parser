@@ -34,7 +34,7 @@ def e1_parser(
         swimmer_age=swimmer.age,
     )
     event_fee = safe_cast(float, extract(line, 33, 6))
-    event_number = safe_cast(int, extract(line, 39, 4))
+    event_number = extract(line, 39, 4)
     event_course = select_from_enum(Course, extract(line, 51, 1))
 
     # Get event
