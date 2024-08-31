@@ -22,7 +22,7 @@ class Stroke(Enum):
     BACKSTROKE = "B", "2", 2
     BREASTSTROKE = "C", "3", 3
     BUTTERFLY = "D", "4", 4
-    MEDELY = "E", "5", 5
+    MEDLEY = "E", "5", 5
 
     UNKNOWN = "U", "0", 0
 
