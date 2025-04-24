@@ -22,6 +22,21 @@ class TestDSwimmerParser(unittest.TestCase):
             self.assertEqual(datetime(2016, 1, 11).date(), swimmer.date_of_birth)
             self.assertEqual(None, swimmer.team_id)
 
+    def test_d1_parser_no_dob(self) -> None:
+        line = "D1F  260Doe                 Jane                                                                  8                              58"
+        file = ParsedHytekFile()
+        file.meet = Meet()
+        file.meet.last_team=("FOO", Team("Foo Bar", "FOO", "foo","","","","","","","","","","","",{}))
+        opts: dict[str, Any] = {}
+        result = d1_parser(line, file, opts)
+        for swimmer in result.meet.swimmers.values():
+            self.assertEqual(8, swimmer.age)
+            self.assertEqual(Gender.FEMALE, swimmer.gender)
+            self.assertEqual("Jane", swimmer.first_name)
+            self.assertEqual("Doe", swimmer.last_name)
+            self.assertIsNone(swimmer.date_of_birth)
+            self.assertIsNone(swimmer.team_id)
+
 if __name__=='__main__':
 	unittest.main()
  

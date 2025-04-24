@@ -21,7 +21,7 @@ class Swimmer:
 
     # Biological info? If you have a better name tell me.
     gender: Gender
-    date_of_birth: date
+    date_of_birth: date|None
     age: int
 
     # Names

@@ -1,3 +1,4 @@
+from datetime import date, datetime
 from typing import Any, Optional, Type, TypeVar
 
 
@@ -140,3 +141,13 @@ def int_or_none(value:str|None) -> int|None:
     Returns:
         int|None: Either the parsed int value or None"""
     return int(value) if value and value.isdigit() else None
+
+def date_or_none(value: str|None) -> date|None:
+    """Safely return either a date from a numeric string value, or None
+    
+    Args:
+        value (str|None): The value to cast to date 
+    
+    Returns:
+        date|None: Either the parsed date value or None"""
+    return datetime.strptime(value, "%m%d%Y").date() if value and value.isnumeric() else None
