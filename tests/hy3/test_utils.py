@@ -1,5 +1,6 @@
 import unittest
-from hytek_parser._utils import safe_cast, int_or_none, select_from_enum
+import datetime
+from hytek_parser._utils import safe_cast, int_or_none, select_from_enum, date_or_none
 from hytek_parser.hy3.schemas import Stroke
 
 class TestUtils(unittest.TestCase):
@@ -15,7 +16,7 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(False, safe_cast(bool, "", None))
     
     def test_int_or_none(self) -> None:
-        self.assertEqual(None, int_or_none(""))
+        self.assertIsNone(int_or_none(""))
         self.assertEqual(1, int_or_none("1"))
         self.assertEqual(1, int_or_none("1"))
              
@@ -23,6 +24,10 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(Stroke.FREESTYLE, select_from_enum(Stroke, "A")) 
         self.assertEqual(Stroke.FREESTYLE, select_from_enum(Stroke, 1)) 
         self.assertEqual(Stroke.UNKNOWN, select_from_enum(Stroke, "foo"))
+        
+    def test_date_or_none(self) -> None:
+        self.assertIsNone(date_or_none(""))
+        self.assertEqual(datetime.date(1970, 1, 2), date_or_none("01021970"))  
                    
 if __name__=='__main__':
 	unittest.main()
