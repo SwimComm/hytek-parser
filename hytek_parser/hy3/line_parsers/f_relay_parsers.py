@@ -108,7 +108,8 @@ def f2_parser(
     overall_place = safe_cast(int, extract(line, 30, 4))
 
     # Skipping over pad/plunger times since they are not that useful
-    date_ = datetime.strptime(extract(line, 103, 8), "%m%d%Y").date()
+    raw_date = extract(line, 103, 8).strip()
+    date_ = datetime.strptime(raw_date, "%m%d%Y").date() if raw_date else None
 
     # Get entry
     event_num, event = file.meet.last_event
