@@ -36,5 +36,58 @@ class TestF2BlankDateColumn(unittest.TestCase):
         self.assertIsNone(entry.finals_date)
 
 
+class TestF1PerEntryAttribution(unittest.TestCase):
+    """Bug 2-A — relay_team_id and relay_swim_team_code must live on
+    EventEntry (not Event), so that two relays from different teams in the
+    same event are distinct entries with correct attribution."""
+
+    def _make_file(self):
+        opts = {"default_country": "USA"}
+        file = ParsedHytekFile()
+        file.meet = Meet()
+        file.meet.last_team = (
+            "AHC",
+            Team("AHC Team", "AHC", "ahc", "", "", "", "", "", "", "", "", "", "", "", {}),
+        )
+        return file, opts
+
+    def test_two_teams_same_event_yield_two_entries_with_per_entry_attribution(self):
+        file, opts = self._make_file()
+        # F1 for AHC's A relay, event 2 (200 medley, 13-14 girls)
+        f1_a = "F1AHC  A   0FFG   200E  0109  0S 30.00  2   112.37Y  112.37Y   52.00    0.00   NN   4           NA                              29"
+        # F1 for HA's A relay, same event 2 — DIFFERENT seed time so identity
+        # is unambiguous even before we add per-entry attribution
+        f1_b = "F1HA   A   0FFG   200E  0109  0S 30.00  2   111.40Y  111.40Y   54.00    0.00   NN   4           NA                              98"
+        file = f1_parser(f1_a, file, opts)
+        file = f1_parser(f1_b, file, opts)
+        event = file.meet.events["2"]
+
+        self.assertEqual(2, len(event.entries), "expected two distinct entries (AHC + HA)")
+        self.assertEqual("AHC", event.entries[0].relay_swim_team_code)
+        self.assertEqual("A", event.entries[0].relay_team_id)
+        self.assertEqual("HA", event.entries[1].relay_swim_team_code)
+        self.assertEqual("A", event.entries[1].relay_team_id)
+
+    def test_same_seed_time_two_teams_same_event_yield_two_entries(self):
+        """Stronger guard for Bug 2-A: with the pre-fix logic, two relays
+        from different teams with identical seed times collapsed into one
+        EventEntry because the identity tuple was (swimmers=[], event_number,
+        seed_time, ...). Type-aware same_swimmer_entry_as must keep them
+        distinct."""
+        file, opts = self._make_file()
+        # Both relays use the SAME seed time (112.37) — this is the actual
+        # collapse-bug scenario. Pre-fix: one collapsed entry. Post-fix: two.
+        f1_a = "F1AHC  A   0FFG   200E  0109  0S 30.00  2   112.37Y  112.37Y   52.00    0.00   NN   4           NA                              29"
+        f1_b = "F1HA   A   0FFG   200E  0109  0S 30.00  2   112.37Y  112.37Y   52.00    0.00   NN   4           NA                              98"
+        file = f1_parser(f1_a, file, opts)
+        file = f1_parser(f1_b, file, opts)
+        event = file.meet.events["2"]
+
+        self.assertEqual(2, len(event.entries),
+                         "same seed time must not collapse different teams")
+        self.assertEqual("AHC", event.entries[0].relay_swim_team_code)
+        self.assertEqual("HA", event.entries[1].relay_swim_team_code)
+
+
 if __name__ == "__main__":
     unittest.main()

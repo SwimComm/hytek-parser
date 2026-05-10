@@ -54,8 +54,6 @@ def f1_parser(
         age_max,
         event_fee,
         relay=True,
-        relay_team_id=relay_team,
-        relay_swim_team_code=team_code,
     )
 
     # Will populate this later
@@ -78,6 +76,8 @@ def f1_parser(
         seed_course=entry_seed_course,
         converted_seed_time=entry_converted_seed_time,
         converted_seed_time_course=entry_converted_seed_time_course,
+        relay_team_id=relay_team,
+        relay_swim_team_code=team_code,
     )
 
     # Update event
