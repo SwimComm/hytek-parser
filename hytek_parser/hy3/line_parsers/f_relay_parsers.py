@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from hytek_parser._utils import extract, get_age_group, safe_cast, select_from_enum
 from hytek_parser.hy3._utils import parse_time
@@ -57,7 +57,7 @@ def f1_parser(
     )
 
     # Will populate this later
-    entry_swimmers: list[Swimmer] = []
+    entry_swimmers: dict[int, Swimmer] = {}
 
     # Event entry setup
     entry_event_number = event.number
@@ -146,7 +146,7 @@ def f3_parser(
     line: str, file: ParsedHytekFile, opts: dict[str, Any]
 ) -> ParsedHytekFile:
     """Parse an F3 relay swimmer list."""
-    relay_swimmers: list[Optional[Swimmer]] = [None for _ in range(8)]
+    relay_swimmers: dict[int, Swimmer] = {}
 
     for x in range(8):
         offset = x * 13  # 13 chars per swimmer entry
@@ -159,20 +159,28 @@ def f3_parser(
         swimmer = file.meet.swimmers[swimmer_meet_id]
         swimmer_leg = safe_cast(int, extract(line, 15 + offset, 1))
 
-        # Assume Hytek makes their files correctly
-        relay_swimmers[swimmer_leg - 1] = swimmer
+        # Hy-Tek encodes legs 1..8; preserve the leg number as-is.
+        relay_swimmers[swimmer_leg] = swimmer
 
     # Get entry
     event_num, event = file.meet.last_event
     entry = event.last_entry
 
-    # Set swimmers
-    entry.swimmers = [x for x in relay_swimmers if x]
+    # Set swimmers (leg-keyed)
+    entry.swimmers = relay_swimmers
 
-    # Set the age correctly now
-    event.age_min, event.age_max = get_age_group(
-        age_min=event.age_min, age_max=event.age_max, swimmer_age=entry.swimmers[0].age
-    )
+    # Set the age correctly now using the lowest-numbered leg's swimmer.
+    # Using min(keys()) instead of entry.swimmers[1] handles the edge case
+    # where leg 1 is absent (e.g., scratched before F3 was emitted, or a
+    # malformed F3 line). The if-guard handles the empty-dict case where
+    # F3 was emitted with no parseable swimmers at all.
+    if entry.swimmers:
+        first_leg_swimmer = entry.swimmers[min(entry.swimmers.keys())]
+        event.age_min, event.age_max = get_age_group(
+            age_min=event.age_min,
+            age_max=event.age_max,
+            swimmer_age=first_leg_swimmer.age,
+        )
 
     # Update classes
     event.last_entry = entry

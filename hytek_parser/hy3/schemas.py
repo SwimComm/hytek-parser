@@ -79,7 +79,7 @@ class EventEntry:
 
     # Entry id info
     event_number: str
-    swimmers: list[Swimmer]
+    swimmers: dict[int, Swimmer]
     relay: bool
 
     # Seed time info
@@ -130,7 +130,7 @@ class EventEntry:
 
     def __init__(
         self,
-        swimmers: list[Swimmer],
+        swimmers: dict[int, Swimmer],
         relay: bool,
         event_number: str,
         seed_time: Union[float, ReplacedTimeTimeCode],
@@ -221,7 +221,7 @@ class Event:
 
     def get_or_create_entry(
         self,
-        swimmers: list[Swimmer],
+        swimmers: dict[int, Swimmer],
         relay: bool,
         event_number: str,
         seed_time: Union[float, ReplacedTimeTimeCode],

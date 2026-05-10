@@ -52,7 +52,7 @@ def e1_parser(
     )
 
     # Add swimmer to entry
-    entry_swimmers = [swimmer]
+    entry_swimmers = {1: swimmer}
 
     # Event entry setup
     entry_event_number = event.number
