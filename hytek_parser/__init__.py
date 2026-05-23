@@ -15,4 +15,4 @@ __all__ = [
 ]
 __author__ = "Nino Maruszewski"
 __license__ = "MIT"
-__version__ = "1.2.0"
+__version__ = "2.0.0"

@@ -52,7 +52,7 @@ def e1_parser(
     )
 
     # Add swimmer to entry
-    entry_swimmers = [swimmer]
+    entry_swimmers = {1: swimmer}
 
     # Event entry setup
     entry_event_number = event.number
@@ -101,7 +101,8 @@ def e2_parser(
     overall_place = safe_cast(int, extract(line, 30, 4))
 
     # Skipping over pad/plunger times since they are not that useful
-    date_ = datetime.strptime(extract(line, 88, 8), "%m%d%Y").date()
+    raw_date = extract(line, 88, 8).strip()
+    date_ = datetime.strptime(raw_date, "%m%d%Y").date() if raw_date else None
 
     # Get entry
     event_num, event = file.meet.last_event

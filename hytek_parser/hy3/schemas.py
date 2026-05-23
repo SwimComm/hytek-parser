@@ -79,7 +79,7 @@ class EventEntry:
 
     # Entry id info
     event_number: str
-    swimmers: list[Swimmer]
+    swimmers: dict[int, Swimmer]
     relay: bool
 
     # Seed time info
@@ -124,15 +124,21 @@ class EventEntry:
     finals_overall_place: Optional[int] = None
     finals_date: Optional[date] = None
 
+    # Relay attribution (moved from Event — set by f1_parser)
+    relay_team_id: Optional[str] = None
+    relay_swim_team_code: Optional[str] = None
+
     def __init__(
         self,
-        swimmers: list[Swimmer],
+        swimmers: dict[int, Swimmer],
         relay: bool,
         event_number: str,
         seed_time: Union[float, ReplacedTimeTimeCode],
         seed_course: Course,
         converted_seed_time: Union[float, ReplacedTimeTimeCode],
         converted_seed_time_course: Course,
+        relay_team_id: Optional[str] = None,
+        relay_swim_team_code: Optional[str] = None,
     ) -> None:
         self.swimmers = swimmers
         self.relay = relay
@@ -141,6 +147,8 @@ class EventEntry:
         self.seed_course = seed_course
         self.converted_seed_time = converted_seed_time
         self.converted_seed_time_course = converted_seed_time_course
+        self.relay_team_id = relay_team_id
+        self.relay_swim_team_code = relay_swim_team_code
 
         for course in ("prelim", "swimoff", "finals"):
             setattr(self, f"{course}_time", None)
@@ -159,7 +167,23 @@ class EventEntry:
         self.finals_dq_info = None
 
     def same_swimmer_entry_as(self, other: "EventEntry") -> bool:
-        """Check if two entries are for the same swimmer and event."""
+        """Check if two entries are the same entry (so prelim+finals merge).
+
+        For relays the identity is (event_number, relay_team_id,
+        relay_swim_team_code, seed_time, seed_course) — not swimmers, which
+        are populated later by F3.
+        For individuals the identity is the existing (swimmers, event_number,
+        seed_time, seed_course, converted_seed_time, converted_seed_time_course).
+        """
+        if self.relay or other.relay:
+            return (
+                self.relay == other.relay
+                and self.relay_team_id == other.relay_team_id
+                and self.relay_swim_team_code == other.relay_swim_team_code
+                and self.event_number == other.event_number
+                and self.seed_time == other.seed_time
+                and self.seed_course == other.seed_course
+            )
         return (
             self.swimmers == other.swimmers
             and self.event_number == other.event_number
@@ -184,8 +208,6 @@ class Event:
 
     # Relay info - only set if relay = True
     relay: bool
-    relay_team_id: Optional[str]
-    relay_swim_team_code: Optional[str]
 
     # Swimmer info
     gender: Gender
@@ -199,13 +221,15 @@ class Event:
 
     def get_or_create_entry(
         self,
-        swimmers: list[Swimmer],
+        swimmers: dict[int, Swimmer],
         relay: bool,
         event_number: str,
         seed_time: Union[float, ReplacedTimeTimeCode],
         seed_course: Course,
         converted_seed_time: Union[float, ReplacedTimeTimeCode],
         converted_seed_time_course: Course,
+        relay_team_id: Optional[str] = None,
+        relay_swim_team_code: Optional[str] = None,
     ) -> EventEntry:
         """Get an event entry or create one if needed."""
         entry = EventEntry(
@@ -216,9 +240,12 @@ class Event:
             seed_course=seed_course,
             converted_seed_time=converted_seed_time,
             converted_seed_time_course=converted_seed_time_course,
+            relay_team_id=relay_team_id,
+            relay_swim_team_code=relay_swim_team_code,
         )
         if self.entries and self.entries[-1].same_swimmer_entry_as(entry):
-            # P/F entries always listed together
+            # P/F entries always listed together: a swimmer (individuals) or a
+            # same-team relay (same team_id + letter) re-listed for finals.
             return self.entries[-1]
         else:
             # Create a new entry
@@ -330,8 +357,6 @@ class Meet:
         age_max: int,
         fee: float,
         relay: bool = False,
-        relay_team_id: str|None = None,
-        relay_swim_team_code: str|None = None,
     ) -> Event:
         """Get an event or create if needed."""
         if event := self.events.get(number):
@@ -351,8 +376,6 @@ class Meet:
                 age_max=age_max,
                 fee=fee,
                 relay=relay,
-                relay_team_id=relay_team_id,
-                relay_swim_team_code=relay_swim_team_code,
                 date_=None,
                 open_=open_event,
             )
