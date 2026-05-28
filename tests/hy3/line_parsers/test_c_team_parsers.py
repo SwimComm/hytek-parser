@@ -1,6 +1,6 @@
 import unittest
 from hytek_parser.hy3.schemas import ParsedHytekFile, Meet
-from hytek_parser.hy3.line_parsers.c_team_parsers import c1_parser
+from hytek_parser.hy3.line_parsers.c_team_parsers import c1_parser, c2_parser
 
 
 # Helper to build a deterministic 130-char C1 line from parts.
@@ -132,3 +132,48 @@ class TestC1ContactNames(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# C2 layout (1-based cols): 1-2 "C2"; 3-32 address line 1 (30); 33-62 address
+# line 2 (30); 63-92 city (30); 93-94 state (2); 95-104 zip (10); 105-107 country.
+def _make_c2(line1="", line2="", city="", state="", zip_="", country="USA") -> str:
+    line = (
+        "C2"
+        + line1.ljust(30)[:30]
+        + line2.ljust(30)[:30]
+        + city.ljust(30)[:30]
+        + state.ljust(2)[:2]
+        + zip_.ljust(10)[:10]
+        + country.ljust(3)[:3]
+    )
+    return line.ljust(130)[:130]
+
+
+class TestC2AddressTwoLines(unittest.TestCase):
+    """C2 has two 30-char address lines; previously merged into one 60-char field."""
+
+    def _file_with_team(self):
+        file = ParsedHytekFile()
+        file.meet = Meet()
+        file.meet.last_team = c1_parser(_make_c1(code="WAVE", lsc="CA"), file, {"default_country": "USA"}).meet.last_team
+        return file, {"default_country": "USA"}
+
+    def test_address_split_into_two_lines(self):
+        file, opts = self._file_with_team()
+        c2 = _make_c2(line1="Jim Warren", line2="23119 Mariano Street",
+                      city="Woodland Hills", state="CA", zip_="91367")
+        self.assertEqual(130, len(c2))
+        file = c2_parser(c2, file, opts)
+        _, team = file.meet.last_team
+        self.assertEqual("Jim Warren", team.address_1)            # line 1 (c/o name) — NOT merged
+        self.assertEqual("23119 Mariano Street", team.address_2)  # line 2 (street)
+        self.assertEqual("Woodland Hills", team.city)
+        self.assertEqual("91367", team.zip_code)
+
+    def test_blank_line1_yields_empty(self):
+        file, opts = self._file_with_team()
+        c2 = _make_c2(line1="", line2="500 Pool Rd", city="Town", state="CA", zip_="90001")
+        file = c2_parser(c2, file, opts)
+        _, team = file.meet.last_team
+        self.assertEqual("", team.address_1)
+        self.assertEqual("500 Pool Rd", team.address_2)

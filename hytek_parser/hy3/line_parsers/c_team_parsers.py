@@ -55,7 +55,11 @@ def c2_parser(
     # Get the last team
     team_code, team = file.meet.last_team
 
-    team.address_1 = extract(line, 3, 60)
+    # C2 has two 30-char address lines: line 1 (cols 3-32) is a free-text
+    # "c/o"/attention line (often a contact person, sometimes the org), line 2
+    # (cols 33-62) is the street. They were previously read as one 60-char blob.
+    team.address_1 = extract(line, 3, 30)
+    team.address_2 = extract(line, 33, 30)
     team.city = extract(line, 63, 30)
     team.state = extract(line, 93, 2)
     team.zip_code = extract(line, 95, 10)
