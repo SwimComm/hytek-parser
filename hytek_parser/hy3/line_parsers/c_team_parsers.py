@@ -26,8 +26,12 @@ def c1_parser(
         # Then truncate to 5 chars
         team_code = "".join(TEAM_CODE_REGEX.findall(team_name.upper()))[:5]
 
+    # Issue #118 — LSC code at C1 cols 54-56 (e.g. 'NE', 'PC', 'CA'); populates
+    # the previously-unset Team.region field.
+    region = extract(line, 54, 3) or None
+
     file.meet.get_or_create_team(
-        name=team_name, short_name=team_short_name, code=team_code
+        name=team_name, short_name=team_short_name, code=team_code, region=region
     )
     return file
 
@@ -48,9 +52,6 @@ def c2_parser(
         team.country = team_country
     else:
         team.country = opts["default_country"]
-
-    # TODO: Team region
-    team.region = "Unknown"
 
     file.meet.last_team = (team_code, team)
     return file

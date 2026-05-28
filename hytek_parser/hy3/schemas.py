@@ -58,7 +58,7 @@ class Team:
     state: str
     zip_code: str
     country: str
-    region: str
+    region: Optional[str]
 
     # Contact info
     daytime_phone: str
@@ -351,7 +351,7 @@ class Meet:
             self.swimmers[swimmer.meet_id] = swimmer
             self.teams[swimmer.team_code].swimmers[swimmer.meet_id] = swimmer
 
-    def get_or_create_team(self, name: str, short_name: str, code: str) -> Team:
+    def get_or_create_team(self, name: str, short_name: str, code: str, region: Optional[str] = None) -> Team:
         """Get a team or create if needed."""
         if team := self.teams.get(code):
             return team
@@ -364,7 +364,7 @@ class Meet:
                 address_2="N/A",
                 city="N/A",
                 country="N/A",
-                region="N/A",
+                region=region,
                 state="N/A",
                 zip_code="N/A",
                 daytime_phone="N/A",
