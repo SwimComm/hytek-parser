@@ -5,7 +5,7 @@ from hytek_parser.hy3.enums import Course
 
 class TestEventEntryNewTimingFields(unittest.TestCase):
     """Issue #118 — EventEntry gains 19 new attributes (18 timing × 3 prefixes
-    + 1 entry-level unparsed_e1_col_77_79)."""
+    + 1 entry-level meet_division)."""
 
     def _make_entry(self):
         return EventEntry(
@@ -35,10 +35,10 @@ class TestEventEntryNewTimingFields(unittest.TestCase):
                     f"{attr} should default to None",
                 )
 
-    def test_unparsed_e1_col_77_79_defaults_to_none(self):
+    def test_meet_division_defaults_to_none(self):
         entry = self._make_entry()
-        self.assertTrue(hasattr(entry, "unparsed_e1_col_77_79"))
-        self.assertIsNone(entry.unparsed_e1_col_77_79)
+        self.assertTrue(hasattr(entry, "meet_division"))
+        self.assertIsNone(entry.meet_division)
 
 
 if __name__ == "__main__":

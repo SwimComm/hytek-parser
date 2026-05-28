@@ -157,10 +157,11 @@ class EventEntry:
     relay_team_id: Optional[str] = None
     relay_swim_team_code: Optional[str] = None
 
-    # Issue #118 — E1 field previously dropped (cols 77-79).
-    # Observed values: 'VR', 'JV', 'SLV'. Semantics unverified —
-    # name intentionally non-descriptive.
-    unparsed_e1_col_77_79: Optional[str] = None
+    # Issue #118 — E1 Meet Division (cols 77-79).
+    # Values: 'JV' (Junior Varsity), 'VR' (Varsity), classification codes
+    # ('A'/'AA'/'AAA'/'BB'/...), or numeric ('0'/'1'/'2'/'3'). '0' is the
+    # most common numeric and likely means 'no division'.
+    meet_division: Optional[str] = None
 
     def __init__(
         self,
@@ -173,7 +174,7 @@ class EventEntry:
         converted_seed_time_course: Course,
         relay_team_id: Optional[str] = None,
         relay_swim_team_code: Optional[str] = None,
-        unparsed_e1_col_77_79: Optional[str] = None,   # <-- NEW (Issue #118)
+        meet_division: Optional[str] = None,
     ) -> None:
         self.swimmers = swimmers
         self.relay = relay
@@ -184,7 +185,7 @@ class EventEntry:
         self.converted_seed_time_course = converted_seed_time_course
         self.relay_team_id = relay_team_id
         self.relay_swim_team_code = relay_swim_team_code
-        self.unparsed_e1_col_77_79 = unparsed_e1_col_77_79
+        self.meet_division = meet_division
 
         for course in ("prelim", "swimoff", "finals"):
             setattr(self, f"{course}_time", None)
@@ -272,7 +273,7 @@ class Event:
         converted_seed_time_course: Course,
         relay_team_id: Optional[str] = None,
         relay_swim_team_code: Optional[str] = None,
-        unparsed_e1_col_77_79: Optional[str] = None,   # <-- NEW (Issue #118)
+        meet_division: Optional[str] = None,
     ) -> EventEntry:
         """Get an event entry or create one if needed."""
         entry = EventEntry(
@@ -285,7 +286,7 @@ class Event:
             converted_seed_time_course=converted_seed_time_course,
             relay_team_id=relay_team_id,
             relay_swim_team_code=relay_swim_team_code,
-            unparsed_e1_col_77_79=unparsed_e1_col_77_79,   # <-- NEW
+            meet_division=meet_division,
         )
         if self.entries and self.entries[-1].same_swimmer_entry_as(entry):
             # P/F entries always listed together: a swimmer (individuals) or a

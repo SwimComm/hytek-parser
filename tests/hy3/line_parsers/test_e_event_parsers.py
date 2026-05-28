@@ -55,8 +55,8 @@ class TestE2BlankDateColumn(unittest.TestCase):
         self.assertIsNone(entry.finals_date)
 
 
-class TestE1UnparsedCol77_79(unittest.TestCase):
-    """Issue #118 — capture cols 77-79 (observed: VR, JV, SLV; semantics unverified)."""
+class TestE1MeetDivision(unittest.TestCase):
+    """Issue #118 — capture Meet Division at cols 77-79 (e.g. 'VR', 'JV', 'A'/'AA'/numeric)."""
 
     def _build_file(self):
         opts = {"default_country": "USA"}
@@ -70,22 +70,22 @@ class TestE1UnparsedCol77_79(unittest.TestCase):
         file = d1_parser(d_line, file, opts)
         return file, opts
 
-    def test_e1_with_VR_in_77_79(self):
+    def test_e1_meet_division_VR(self):
         file, opts = self._build_file()
         # E1 with 'VR ' at cols 77-79 (1-based); indices [76:79] in the 130-char line.
         e1 = "E1M   27HanseXX    50D 11109  0U  0.00 22X   37.41S   37.41S    0.00    0.00VR NN               N                               70"
         self.assertEqual(130, len(e1))
         file = e1_parser(e1, file, opts)
         entry = file.meet.events["22X"].last_entry
-        self.assertEqual("VR", entry.unparsed_e1_col_77_79)
+        self.assertEqual("VR", entry.meet_division)
 
-    def test_e1_with_blank_77_79(self):
+    def test_e1_meet_division_blank(self):
         file, opts = self._build_file()
         e1 = "E1M   27HanseXX    50D 11109  0U  0.00 22X   37.41S   37.41S    0.00    0.00   NN               N                               70"
         self.assertEqual(130, len(e1))
         file = e1_parser(e1, file, opts)
         entry = file.meet.events["22X"].last_entry
-        self.assertIsNone(entry.unparsed_e1_col_77_79)
+        self.assertIsNone(entry.meet_division)
 
 
 class TestE2BackupTimingFields(unittest.TestCase):
