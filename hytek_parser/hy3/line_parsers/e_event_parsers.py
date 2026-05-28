@@ -63,6 +63,10 @@ def e1_parser(
     entry_converted_seed_time = parse_time(extract(line, 43, 8))
     entry_converted_seed_time_course = event.course
 
+    # Issue #118 — previously dropped E1 field at cols 77-79.
+    # Observed values: VR, JV, SLV. Semantics unverified.
+    unparsed_e1_col_77_79 = extract(line, 77, 3) or None
+
     event.get_or_create_entry(
         swimmers=entry_swimmers,
         relay=False,
@@ -71,6 +75,7 @@ def e1_parser(
         seed_course=entry_seed_course,
         converted_seed_time=entry_converted_seed_time,
         converted_seed_time_course=entry_converted_seed_time_course,
+        unparsed_e1_col_77_79=unparsed_e1_col_77_79,
     )
 
     # Update event

@@ -173,6 +173,7 @@ class EventEntry:
         converted_seed_time_course: Course,
         relay_team_id: Optional[str] = None,
         relay_swim_team_code: Optional[str] = None,
+        unparsed_e1_col_77_79: Optional[str] = None,   # <-- NEW (Issue #118)
     ) -> None:
         self.swimmers = swimmers
         self.relay = relay
@@ -183,6 +184,7 @@ class EventEntry:
         self.converted_seed_time_course = converted_seed_time_course
         self.relay_team_id = relay_team_id
         self.relay_swim_team_code = relay_swim_team_code
+        self.unparsed_e1_col_77_79 = unparsed_e1_col_77_79
 
         for course in ("prelim", "swimoff", "finals"):
             setattr(self, f"{course}_time", None)
@@ -205,7 +207,6 @@ class EventEntry:
         self.prelim_dq_info = None
         self.swimoff_dq_info = None
         self.finals_dq_info = None
-        self.unparsed_e1_col_77_79 = None
 
     def same_swimmer_entry_as(self, other: "EventEntry") -> bool:
         """Check if two entries are the same entry (so prelim+finals merge).
@@ -271,6 +272,7 @@ class Event:
         converted_seed_time_course: Course,
         relay_team_id: Optional[str] = None,
         relay_swim_team_code: Optional[str] = None,
+        unparsed_e1_col_77_79: Optional[str] = None,   # <-- NEW (Issue #118)
     ) -> EventEntry:
         """Get an event entry or create one if needed."""
         entry = EventEntry(
@@ -283,6 +285,7 @@ class Event:
             converted_seed_time_course=converted_seed_time_course,
             relay_team_id=relay_team_id,
             relay_swim_team_code=relay_swim_team_code,
+            unparsed_e1_col_77_79=unparsed_e1_col_77_79,   # <-- NEW
         )
         if self.entries and self.entries[-1].same_swimmer_entry_as(entry):
             # P/F entries always listed together: a swimmer (individuals) or a
