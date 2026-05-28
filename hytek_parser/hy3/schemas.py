@@ -65,6 +65,8 @@ class Team:
     evening_phone: str
     fax: str
     email: str
+    contact_name_1: Optional[str] = None
+    contact_name_2: Optional[str] = None
 
     # Swimmers
     swimmers: dict[int, Swimmer] = Factory(dict)
@@ -352,7 +354,15 @@ class Meet:
             self.swimmers[swimmer.meet_id] = swimmer
             self.teams[swimmer.team_code].swimmers[swimmer.meet_id] = swimmer
 
-    def get_or_create_team(self, name: str, short_name: str, code: str, region: Optional[str] = None) -> Team:
+    def get_or_create_team(
+        self,
+        name: str,
+        short_name: str,
+        code: str,
+        region: Optional[str] = None,
+        contact_name_1: Optional[str] = None,
+        contact_name_2: Optional[str] = None,
+    ) -> Team:
         """Get a team or create if needed."""
         if team := self.teams.get(code):
             return team
@@ -372,6 +382,8 @@ class Meet:
                 evening_phone="N/A",
                 fax="N/A",
                 email="N/A",
+                contact_name_1=contact_name_1,
+                contact_name_2=contact_name_2,
             )
 
             # Add team, this also updates the teams dict

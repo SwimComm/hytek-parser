@@ -26,12 +26,24 @@ def c1_parser(
         # Then truncate to 5 chars
         team_code = "".join(TEAM_CODE_REGEX.findall(team_name.upper()))[:5]
 
-    # Issue #118 — LSC code at C1 cols 54-56 (e.g. 'NE', 'PC', 'CA'); populates
-    # the previously-unset Team.region field.
-    region = extract(line, 54, 3) or None
+    # Issue #118 — LSC code at C1 cols 54-55 (2 chars, e.g. 'NE', 'PC', 'CA');
+    # populates the previously-unset Team.region field.
+    # Bug fix: was extract(54, 3), which grabbed the first letter of the contact
+    # name at col 56, corrupting ~19% of teams' LSC codes.
+    region = extract(line, 54, 2) or None
+
+    # C1 contact name slots: cols 56-85 (contact_name_1) and 86-115 (contact_name_2).
+    # Often identical; blank slot → None.
+    contact_name_1 = extract(line, 56, 30) or None
+    contact_name_2 = extract(line, 86, 30) or None
 
     file.meet.get_or_create_team(
-        name=team_name, short_name=team_short_name, code=team_code, region=region
+        name=team_name,
+        short_name=team_short_name,
+        code=team_code,
+        region=region,
+        contact_name_1=contact_name_1,
+        contact_name_2=contact_name_2,
     )
     return file
 

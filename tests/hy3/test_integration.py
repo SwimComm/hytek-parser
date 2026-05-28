@@ -233,7 +233,7 @@ class TestMM5Col77DivisionAltCodeDivergence(unittest.TestCase):
     """MM5 6.0Cc (2015 WI State/Non-State Open) — issue-#118 col-77 fields.
 
     Verifies:
-      - Team region 'WIP'
+      - Team region 'WI' (Wisconsin Swimming LSC; 2-char, cols 54-55)
       - meet_division 'JV' read via col-77 primary path
       - finals_alt_time_code values 'A' and 'K' present
       - Pad-vs-button divergence entry (pad > button due to touchpad error)
@@ -244,9 +244,11 @@ class TestMM5Col77DivisionAltCodeDivergence(unittest.TestCase):
         cls.parsed = parse_hy3(str(FIXTURE_DIR / "mm_col77_division.hy3"))
         cls.meet = cls.parsed.meet
 
-    def test_team_region_wip(self) -> None:
+    def test_team_region_wi(self) -> None:
+        """Region must be the 2-char LSC code 'WI', not the old buggy 'WIP'."""
         regions = {t.region for t in self.meet.teams.values() if t.region}
-        self.assertIn("WIP", regions)
+        self.assertIn("WI", regions)
+        self.assertNotIn("WIP", regions)
 
     def test_at_least_one_swimmer_citizenship_usa(self) -> None:
         citizenships = {
