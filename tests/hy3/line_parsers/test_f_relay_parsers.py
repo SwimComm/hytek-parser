@@ -135,5 +135,55 @@ class TestF3DictKeyedSwimmers(unittest.TestCase):
         self.assertEqual(set(entry.swimmers.keys()), {1, 2, 3, 4, 5, 6, 7, 8})
 
 
+class TestF2BackupTimingFields(unittest.TestCase):
+    """Issue #118 — F2 timing fields. Same offsets as E2 for the five timing
+    columns; alt_time_code at col 111 (NOT 96) because F2's date is at col 103."""
+
+    def _build_file_with_relay_entry(self):
+        opts = {"default_country": "USA"}
+        file = ParsedHytekFile()
+        file.meet = Meet()
+        file.meet.last_team = (
+            "FOO",
+            Team("Foo Bar", "FOO", "FOO", "", "", "", "", "", "", "", "", "", "", "", {}),
+        )
+        f1_line = "F1FOO  A   0FFG   200E  0109  0S 30.00  2   112.37Y  112.37Y   52.00    0.00   NN   4           NA                              29"
+        file = f1_parser(f1_line, file, opts)
+        return file, opts
+
+    def test_f2_with_buttons_and_alt_code_at_col_111(self):
+        file, opts = self._build_file_with_relay_entry()
+        # F2 with pad+buttons populated and 'A' alt-code at col 111. F2 date at cols 103-110.
+        # Verified offsets: button_1(39-46)=108.20, button_2(47-54)=108.10,
+        # button_3(55-62)=0.00, pad(63-74)=108.15, backup_4(75-82)=0.00,
+        # date(103-110)=02012025, alt_code(111)=A
+        f2_line = "F2F  108.15Y        0  2  6  4   4  0   108.20  108.10    0.00      108.15    0.00                    02012025A                 46"
+        file = f2_parser(f2_line, file, opts)
+        event = file.meet.events[list(file.meet.events.keys())[0]]
+        entry = event.last_entry
+        self.assertAlmostEqual(108.15, entry.finals_time, places=2)
+        self.assertAlmostEqual(108.20, entry.finals_button_1_time, places=2)
+        self.assertAlmostEqual(108.10, entry.finals_button_2_time, places=2)
+        self.assertIsNone(entry.finals_button_3_time)   # 0.00 → None
+        self.assertAlmostEqual(108.15, entry.finals_pad_time, places=2)
+        self.assertIsNone(entry.finals_backup_4_time)   # 0.00 → None
+        self.assertEqual("A", entry.finals_alt_time_code)
+
+    def test_f2_blank_alt_code(self):
+        file, opts = self._build_file_with_relay_entry()
+        # F2 with blank alt_code at col 111 — should surface as None
+        # Verified offsets: button_1(39-46)=111.00, button_2(47-54)=111.16,
+        # pad(63-74)=111.06, date(103-110)=02012025, alt_code(111)=blank
+        f2_line = "F2F  111.06Y        0  2  6  4   4  0   111.00  111.16    0.00      111.06    0.00                    02012025                  46"
+        file = f2_parser(f2_line, file, opts)
+        event = file.meet.events[list(file.meet.events.keys())[0]]
+        entry = event.last_entry
+        self.assertAlmostEqual(111.06, entry.finals_time, places=2)
+        self.assertAlmostEqual(111.00, entry.finals_button_1_time, places=2)
+        self.assertAlmostEqual(111.16, entry.finals_button_2_time, places=2)
+        self.assertAlmostEqual(111.06, entry.finals_pad_time, places=2)
+        self.assertIsNone(entry.finals_alt_time_code)
+
+
 if __name__ == "__main__":
     unittest.main()

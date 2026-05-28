@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any
 
 from hytek_parser._utils import extract, get_age_group, safe_cast, select_from_enum
-from hytek_parser.hy3._utils import parse_time
+from hytek_parser.hy3._utils import parse_time, parse_time_or_none
 from hytek_parser.hy3.enums import (
     Course,
     DisqualificationCode,
@@ -107,7 +107,17 @@ def f2_parser(
     heat_place = safe_cast(int, extract(line, 27, 3))
     overall_place = safe_cast(int, extract(line, 30, 4))
 
-    # Skipping over pad/plunger times since they are not that useful
+    # Issue #118 — previously-dropped F2 timing fields. The five timing-column
+    # offsets are IDENTICAL to e2_parser; only alt_time_code differs because F2
+    # has a 15-column gap before its date field (date at col 103, not 88).
+    # F2 alt_time_code lives at col 111, not col 96.
+    pad_time      = parse_time_or_none(extract(line, 63, 12))
+    button_1_time = parse_time_or_none(extract(line, 39, 8))
+    button_2_time = parse_time_or_none(extract(line, 47, 8))
+    button_3_time = parse_time_or_none(extract(line, 55, 8))
+    backup_4_time = parse_time_or_none(extract(line, 75, 8))
+    alt_time_code = extract(line, 111, 1) or None  # F2 offset; observed: 'A'/'K'/blank
+
     raw_date = extract(line, 103, 8).strip()
     date_ = datetime.strptime(raw_date, "%m%d%Y").date() if raw_date else None
 
@@ -135,6 +145,12 @@ def f2_parser(
     setattr(entry, f"{prefix}_heat_place", heat_place)
     setattr(entry, f"{prefix}_overall_place", overall_place)
     setattr(entry, f"{prefix}_date", date_)
+    setattr(entry, f"{prefix}_pad_time", pad_time)
+    setattr(entry, f"{prefix}_button_1_time", button_1_time)
+    setattr(entry, f"{prefix}_button_2_time", button_2_time)
+    setattr(entry, f"{prefix}_button_3_time", button_3_time)
+    setattr(entry, f"{prefix}_backup_4_time", backup_4_time)
+    setattr(entry, f"{prefix}_alt_time_code", alt_time_code)
 
     event.last_entry = entry
     file.meet.last_event = (event_num, event)
