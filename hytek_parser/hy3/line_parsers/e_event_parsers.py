@@ -105,7 +105,7 @@ def e2_parser(
     heat_place = safe_cast(int, extract(line, 27, 3))
     overall_place = safe_cast(int, extract(line, 30, 4))
 
-    # Issue #118 — previously-dropped E2 timing fields.
+    # previously-dropped E2 timing fields.
     # See spec for column-offset derivation and failure-mode evidence
     # (touchpad turn-touch misattribution in short SCY sprints).
     # parse_time_or_none returns None for "0.00" and blank/non-numeric fields.

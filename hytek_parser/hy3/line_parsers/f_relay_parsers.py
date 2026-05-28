@@ -107,7 +107,7 @@ def f2_parser(
     heat_place = safe_cast(int, extract(line, 27, 3))
     overall_place = safe_cast(int, extract(line, 30, 4))
 
-    # Issue #118 — previously-dropped F2 timing fields. The five timing-column
+    # previously-dropped F2 timing fields. The five timing-column
     # offsets are IDENTICAL to e2_parser; only alt_time_code differs because F2
     # has a 15-column gap before its date field (date at col 103, not 88).
     # F2 alt_time_code lives at col 111, not col 96.

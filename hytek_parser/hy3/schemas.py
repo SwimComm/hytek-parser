@@ -36,7 +36,7 @@ class Swimmer:
     usa_swimming_id: str
     team_code: str  # Team 5-letter code
 
-    # Issue #118 — D1 fields previously dropped by the parser
+    # D1 fields previously dropped by the parser
     citizenship: Optional[str] = None
     # col 125; semantics unverified — name intentionally non-descriptive
     unparsed_d1_col_125: Optional[str] = None
@@ -106,7 +106,7 @@ class EventEntry:
     prelim_heat_place: Optional[int] = None
     prelim_overall_place: Optional[int] = None
     prelim_date: Optional[date] = None
-    # Issue #118 — E2 fields previously dropped (pad + 3 buttons + backup_4 + alt code)
+    # E2 fields previously dropped (pad + 3 buttons + backup_4 + alt code)
     prelim_pad_time: Optional[float] = None
     prelim_button_1_time: Optional[float] = None
     prelim_button_2_time: Optional[float] = None
@@ -126,7 +126,7 @@ class EventEntry:
     swimoff_heat_place: Optional[int] = None
     swimoff_overall_place: Optional[int] = None
     swimoff_date: Optional[date] = None
-    # Issue #118 — E2 fields previously dropped (pad + 3 buttons + backup_4 + alt code)
+    # E2 fields previously dropped (pad + 3 buttons + backup_4 + alt code)
     swimoff_pad_time: Optional[float] = None
     swimoff_button_1_time: Optional[float] = None
     swimoff_button_2_time: Optional[float] = None
@@ -146,7 +146,7 @@ class EventEntry:
     finals_heat_place: Optional[int] = None
     finals_overall_place: Optional[int] = None
     finals_date: Optional[date] = None
-    # Issue #118 — E2 fields previously dropped (pad + 3 buttons + backup_4 + alt code)
+    # E2 fields previously dropped (pad + 3 buttons + backup_4 + alt code)
     finals_pad_time: Optional[float] = None
     finals_button_1_time: Optional[float] = None
     finals_button_2_time: Optional[float] = None
@@ -159,7 +159,7 @@ class EventEntry:
     relay_team_id: Optional[str] = None
     relay_swim_team_code: Optional[str] = None
 
-    # Issue #118 — Meet Division. The host-configured division label for the
+    # Meet Division. The host-configured division label for the
     # entry: 'JV'/'VR' (varsity-style), classification codes ('A'/'AA'/'AAA'/'BB'),
     # HS enrollment classes ('5A'/'4A'/'3A'), age-group/level codes ('AG'/'SR'),
     # or numeric ('0'/'1'/'2'/'3'). Stored at cols 77-79 in most MM versions,

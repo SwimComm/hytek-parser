@@ -136,7 +136,7 @@ class TestF3DictKeyedSwimmers(unittest.TestCase):
 
 
 class TestF2BackupTimingFields(unittest.TestCase):
-    """Issue #118 — F2 timing fields. Same offsets as E2 for the five timing
+    """F2 timing fields. Same offsets as E2 for the five timing
     columns; alt_time_code at col 111 (NOT 96) because F2's date is at col 103."""
 
     def _build_file_with_relay_entry(self):

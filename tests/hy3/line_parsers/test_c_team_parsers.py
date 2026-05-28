@@ -40,7 +40,7 @@ def _make_c1(
 
 
 class TestC1TeamRegion(unittest.TestCase):
-    """Issue #118 — populate Team.region from the C1 LSC code at cols 54-55."""
+    """populate Team.region from the C1 LSC code at cols 54-55."""
 
     def _file(self):
         file = ParsedHytekFile()

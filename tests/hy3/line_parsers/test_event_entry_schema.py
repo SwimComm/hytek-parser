@@ -4,7 +4,7 @@ from hytek_parser.hy3.enums import Course
 
 
 class TestEventEntryNewTimingFields(unittest.TestCase):
-    """Issue #118 — EventEntry gains 19 new attributes (18 timing × 3 prefixes
+    """EventEntry gains 19 new attributes (18 timing × 3 prefixes
     + 1 entry-level meet_division)."""
 
     def _make_entry(self):

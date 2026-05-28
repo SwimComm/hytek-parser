@@ -56,7 +56,7 @@ class TestE2BlankDateColumn(unittest.TestCase):
 
 
 class TestE1MeetDivision(unittest.TestCase):
-    """Issue #118 — capture Meet Division at cols 77-79 (e.g. 'VR', 'JV', 'A'/'AA'/numeric)."""
+    """capture Meet Division at cols 77-79 (e.g. 'VR', 'JV', 'A'/'AA'/numeric)."""
 
     def _build_file(self):
         opts = {"default_country": "USA"}
@@ -100,7 +100,7 @@ class TestE1MeetDivision(unittest.TestCase):
 
 
 class TestE2BackupTimingFields(unittest.TestCase):
-    """Issue #118 — capture pad, 3 buttons, backup_4, alt_time_code from E2 rows."""
+    """capture pad, 3 buttons, backup_4, alt_time_code from E2 rows."""
 
     def _build_file(self):
         opts = {"default_country": "USA"}

@@ -38,7 +38,7 @@ class TestDSwimmerParser(unittest.TestCase):
             self.assertIsNone(swimmer.team_id)
 
 class TestD1NewFields(unittest.TestCase):
-    """Issue #118 — capture D1 citizenship (cols 113-115) and unparsed col 125."""
+    """capture D1 citizenship (cols 113-115) and unparsed col 125."""
 
     def _file_with_team(self):
         opts = {"default_country": "USA"}

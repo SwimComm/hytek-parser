@@ -26,7 +26,7 @@ def c1_parser(
         # Then truncate to 5 chars
         team_code = "".join(TEAM_CODE_REGEX.findall(team_name.upper()))[:5]
 
-    # Issue #118 — LSC code at C1 cols 54-55 (2 chars, e.g. 'NE', 'PC', 'CA');
+    # LSC code at C1 cols 54-55 (2 chars, e.g. 'NE', 'PC', 'CA');
     # populates the previously-unset Team.region field.
     # Bug fix: was extract(54, 3), which grabbed the first letter of the contact
     # name at col 56, corrupting ~19% of teams' LSC codes.

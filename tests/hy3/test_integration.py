@@ -158,7 +158,7 @@ def _all_entries(meet, relay_only: bool = False, individual_only: bool = False):
 
 
 class TestMM4Col92DivisionCitizenshipTiming(unittest.TestCase):
-    """MM4 4.0Ec (2013 YMCA Nationals) — issue-#118 col-92 fields.
+    """MM4 4.0Ec (2013 YMCA Nationals) — col-92 fields.
 
     Verifies:
       - Team regions parsed from LSC code (col-92 fallback path)
@@ -230,7 +230,7 @@ class TestMM4Col92DivisionCitizenshipTiming(unittest.TestCase):
 
 
 class TestMM5Col77DivisionAltCodeDivergence(unittest.TestCase):
-    """MM5 6.0Cc (2015 WI State/Non-State Open) — issue-#118 col-77 fields.
+    """MM5 6.0Cc (2015 WI State/Non-State Open) — col-77 fields.
 
     Verifies:
       - Team region 'WI' (Wisconsin Swimming LSC; 2-char, cols 54-55)
@@ -295,7 +295,7 @@ class TestMM5Col77DivisionAltCodeDivergence(unittest.TestCase):
 
 
 class TestMM5PadButtonDivergenceMultiRegion(unittest.TestCase):
-    """MM5 8.0Fd (2025 MT HOT Tropical) — issue-#118 pad-vs-button divergence.
+    """MM5 8.0Fd (2025 MT HOT Tropical) — pad-vs-button divergence.
 
     Verifies:
       - Team regions MT and WY both present
