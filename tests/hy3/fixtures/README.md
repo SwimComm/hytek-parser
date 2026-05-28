@@ -13,6 +13,9 @@ from publicly distributed meet results:
 | `mm2_2_0fg_relay_multi_team.hy3` | MM2 2.0Fg | 2007 Pacific Committee R-W SC Meet | Bug 1 (blank E2/F2 date column) + Bug 2-A (multi-team relay attribution) |
 | `mm3_3_0ea_individuals_blank_date.hy3` | MM3 3.0Ea | 2011 CA CSSC Fall Mile | Bug 1 on a different MM generation |
 | `mm5_8_0fd_relay_alternates.hy3` | MM5 8.0Fd | 2025 WMPSSDL Championships | Bug 2-B (F3 swimmer dict preserves leg numbers for alternates) |
+| `mm4_ymca_col92_division_citizenship.hy3` | MM4 4.0Ec | 2013 YMCA Nationals Short Course (Virginia Swimming) | Issue #118: E1 col-92 `meet_division` (`SW`); D1 `citizenship` (`USA`); C1 `region` (NE/MD/NI); E2 pad+button timing; F2 relay pad+button timing |
+| `mm_col77_division.hy3` | MM5 6.0Cc | 2015 State/Non-State Open 25 yd (Wisconsin Swimming) | Issue #118: E1 col-77 `meet_division` (`JV`); E2 `alt_time_code` (`A`, `K`); pad-vs-button divergence (pad=107.39 vs btn1=102.49) |
+| `mm_pad_button_divergence.hy3` | MM5 8.0Fd | 2025 MT HOT Tropical Meet (Montana Swimming) | Issue #118: clear pad-vs-button divergence (pad=36.26 vs result=75.29, half-pool touchpad); E2 `alt_time_code` (`A`); two LSC regions (MT, WY) |
 
 ## Redaction
 
@@ -28,6 +31,13 @@ same column width so the files remain parseable:
 
 Team codes, team names, meet name, facility, and event metadata are
 intact — these are public information from the original meet results.
+
+## Coverage gaps (known)
+
+`backup_4_time` (E2 col 75-82) is always zero in the three issue-#118 source meets;
+no real file with a non-zero value was found among the designated sources. The field
+is exercised by the line-parser-level tests in `test_e_event_parsers.py` but is not
+covered by any integration fixture.
 
 ## Bug references
 
