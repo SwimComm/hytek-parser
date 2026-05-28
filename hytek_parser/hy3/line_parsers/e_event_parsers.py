@@ -105,7 +105,21 @@ def e2_parser(
     heat_place = safe_cast(int, extract(line, 27, 3))
     overall_place = safe_cast(int, extract(line, 30, 4))
 
-    # Skipping over pad/plunger times since they are not that useful
+    # Issue #118 — previously-dropped E2 timing fields.
+    # See spec for column-offset derivation and failure-mode evidence
+    # (touchpad turn-touch misattribution in short SCY sprints).
+    # parse_time returns 0.0 for "0.00" fields, which we treat as absent → None.
+    def _timing_or_none(raw: str):
+        val = parse_time(raw)
+        return None if val == 0.0 else val
+
+    pad_time      = _timing_or_none(extract(line, 63, 12))
+    button_1_time = _timing_or_none(extract(line, 39, 8))
+    button_2_time = _timing_or_none(extract(line, 47, 8))
+    button_3_time = _timing_or_none(extract(line, 55, 8))
+    backup_4_time = _timing_or_none(extract(line, 75, 8))
+    alt_time_code = extract(line, 96, 1) or None  # observed: 'A' / 'K' / blank
+
     raw_date = extract(line, 88, 8).strip()
     date_ = datetime.strptime(raw_date, "%m%d%Y").date() if raw_date else None
 
@@ -133,6 +147,12 @@ def e2_parser(
     setattr(entry, f"{prefix}_heat_place", heat_place)
     setattr(entry, f"{prefix}_overall_place", overall_place)
     setattr(entry, f"{prefix}_date", date_)
+    setattr(entry, f"{prefix}_pad_time", pad_time)
+    setattr(entry, f"{prefix}_button_1_time", button_1_time)
+    setattr(entry, f"{prefix}_button_2_time", button_2_time)
+    setattr(entry, f"{prefix}_button_3_time", button_3_time)
+    setattr(entry, f"{prefix}_backup_4_time", backup_4_time)
+    setattr(entry, f"{prefix}_alt_time_code", alt_time_code)
 
     event.last_entry = entry
     file.meet.last_event = (event_num, event)

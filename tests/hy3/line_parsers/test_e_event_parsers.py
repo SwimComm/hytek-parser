@@ -88,5 +88,71 @@ class TestE1UnparsedCol77_79(unittest.TestCase):
         self.assertIsNone(entry.unparsed_e1_col_77_79)
 
 
+class TestE2BackupTimingFields(unittest.TestCase):
+    """Issue #118 — capture pad, 3 buttons, backup_4, alt_time_code from E2 rows."""
+
+    def _build_file(self):
+        opts = {"default_country": "USA"}
+        file = ParsedHytekFile()
+        file.meet = Meet()
+        file.meet.last_team = (
+            "FOO",
+            Team("Foo Bar", "FOO", "FOO", "", "", "", "", "", "", "", "", "", "", "", {}),
+        )
+        d_line = "D1M   27Hansen              Mads                                                        10272010 13                             27"
+        e1_line = "E1M   27HanseXX    50D 11109  0U  0.00 22X   37.41S   37.41S    0.00    0.00  0NN               N                               70"
+        file = d1_parser(d_line, file, opts)
+        file = e1_parser(e1_line, file, opts)
+        return file, opts
+
+    def test_e2_with_pad_and_buttons_and_alt_code(self):
+        """Allie Cooper failure mode: pad=12.80, buttons=41.16/40.88, alt=K."""
+        file, opts = self._build_file()
+        # 130-char E2 line. Column anchors (1-indexed):
+        #  4-11 time, 12 course, 13 time_code, 21-23 heat, 24-26 lane,
+        #  27-29 heat_place, 30-33 overall_place,
+        #  39-46 button_1, 47-54 button_2, 55-62 button_3,
+        #  63-74 pad, 75-82 backup_4, 88-95 date, 96 alt_code.
+        e2 = "E2F   12.80Y          4  5  1   1   0    41.16   40.88    0.00       12.80    0.00     12012018K                          0     66"
+        self.assertEqual(130, len(e2))
+        file = e2_parser(e2, file, opts)
+        entry = file.meet.events["22X"].last_entry
+        self.assertEqual(12.80, entry.finals_time)
+        self.assertAlmostEqual(12.80, entry.finals_pad_time, places=2)
+        self.assertAlmostEqual(41.16, entry.finals_button_1_time, places=2)
+        self.assertAlmostEqual(40.88, entry.finals_button_2_time, places=2)
+        self.assertIsNone(entry.finals_button_3_time)  # 0.00 → None
+        self.assertIsNone(entry.finals_backup_4_time)
+        self.assertEqual("K", entry.finals_alt_time_code)
+
+    def test_e2_clean_row_with_all_three_buttons(self):
+        """Three populated buttons, blank alt code, clean pad."""
+        file, opts = self._build_file()
+        e2 = "E2F   54.00Y          2  3  2  14   0    54.25   54.22   54.16       54.00    0.00     11202010                           0     66"
+        self.assertEqual(130, len(e2))
+        file = e2_parser(e2, file, opts)
+        entry = file.meet.events["22X"].last_entry
+        self.assertAlmostEqual(54.25, entry.finals_button_1_time, places=2)
+        self.assertAlmostEqual(54.22, entry.finals_button_2_time, places=2)
+        self.assertAlmostEqual(54.16, entry.finals_button_3_time, places=2)
+        self.assertAlmostEqual(54.00, entry.finals_pad_time, places=2)
+        self.assertIsNone(entry.finals_alt_time_code)
+
+    def test_e2_blank_timing_fields_all_none(self):
+        """Hand-timed: no pad/buttons recorded → all six new fields None."""
+        file, opts = self._build_file()
+        e2 = "E2F   54.79Y          2  3  4  12   0     0.00    0.00    0.00        0.00    0.00     12012018                           0     25"
+        self.assertEqual(130, len(e2))
+        file = e2_parser(e2, file, opts)
+        entry = file.meet.events["22X"].last_entry
+        self.assertEqual(54.79, entry.finals_time)
+        self.assertIsNone(entry.finals_pad_time)
+        self.assertIsNone(entry.finals_button_1_time)
+        self.assertIsNone(entry.finals_button_2_time)
+        self.assertIsNone(entry.finals_button_3_time)
+        self.assertIsNone(entry.finals_backup_4_time)
+        self.assertIsNone(entry.finals_alt_time_code)
+
+
 if __name__=='__main__':
     unittest.main()
