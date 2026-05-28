@@ -104,6 +104,14 @@ class EventEntry:
     prelim_heat_place: Optional[int] = None
     prelim_overall_place: Optional[int] = None
     prelim_date: Optional[date] = None
+    # Issue #118 — E2 fields previously dropped (pad + 3 buttons + backup_4 + alt code)
+    prelim_pad_time: Optional[float] = None
+    prelim_button_1_time: Optional[float] = None
+    prelim_button_2_time: Optional[float] = None
+    prelim_button_3_time: Optional[float] = None
+    prelim_backup_4_time: Optional[float] = None
+    # col 96; semantics unverified — observed 'A'/'K'/blank
+    prelim_alt_time_code: Optional[str] = None
 
     # Swimoff Time info
     swimoff_time: Optional[Union[float, ReplacedTimeTimeCode]] = None
@@ -116,6 +124,14 @@ class EventEntry:
     swimoff_heat_place: Optional[int] = None
     swimoff_overall_place: Optional[int] = None
     swimoff_date: Optional[date] = None
+    # Issue #118 — E2 fields previously dropped (pad + 3 buttons + backup_4 + alt code)
+    swimoff_pad_time: Optional[float] = None
+    swimoff_button_1_time: Optional[float] = None
+    swimoff_button_2_time: Optional[float] = None
+    swimoff_button_3_time: Optional[float] = None
+    swimoff_backup_4_time: Optional[float] = None
+    # col 96; semantics unverified — observed 'A'/'K'/blank
+    swimoff_alt_time_code: Optional[str] = None
 
     # Finals time info
     finals_time: Optional[Union[float, ReplacedTimeTimeCode]] = None
@@ -128,10 +144,23 @@ class EventEntry:
     finals_heat_place: Optional[int] = None
     finals_overall_place: Optional[int] = None
     finals_date: Optional[date] = None
+    # Issue #118 — E2 fields previously dropped (pad + 3 buttons + backup_4 + alt code)
+    finals_pad_time: Optional[float] = None
+    finals_button_1_time: Optional[float] = None
+    finals_button_2_time: Optional[float] = None
+    finals_button_3_time: Optional[float] = None
+    finals_backup_4_time: Optional[float] = None
+    # col 96; semantics unverified — observed 'A'/'K'/blank
+    finals_alt_time_code: Optional[str] = None
 
     # Relay attribution (moved from Event — set by f1_parser)
     relay_team_id: Optional[str] = None
     relay_swim_team_code: Optional[str] = None
+
+    # Issue #118 — E1 field previously dropped (cols 77-79).
+    # Observed values: 'VR', 'JV', 'SLV'. Semantics unverified —
+    # name intentionally non-descriptive.
+    unparsed_e1_col_77_79: Optional[str] = None
 
     def __init__(
         self,
@@ -166,10 +195,17 @@ class EventEntry:
             setattr(self, f"{course}_heat_place", None)
             setattr(self, f"{course}_overall_place", None)
             setattr(self, f"{course}_date", None)
+            setattr(self, f"{course}_pad_time", None)
+            setattr(self, f"{course}_button_1_time", None)
+            setattr(self, f"{course}_button_2_time", None)
+            setattr(self, f"{course}_button_3_time", None)
+            setattr(self, f"{course}_backup_4_time", None)
+            setattr(self, f"{course}_alt_time_code", None)
 
         self.prelim_dq_info = None
         self.swimoff_dq_info = None
         self.finals_dq_info = None
+        self.unparsed_e1_col_77_79 = None
 
     def same_swimmer_entry_as(self, other: "EventEntry") -> bool:
         """Check if two entries are the same entry (so prelim+finals merge).
