@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any
 
 from hytek_parser._utils import extract, get_age_group, safe_cast, select_from_enum
-from hytek_parser.hy3._utils import parse_time
+from hytek_parser.hy3._utils import parse_time, parse_time_or_none
 from hytek_parser.hy3.enums import (
     Course,
     DisqualificationCode,
@@ -108,16 +108,12 @@ def e2_parser(
     # Issue #118 — previously-dropped E2 timing fields.
     # See spec for column-offset derivation and failure-mode evidence
     # (touchpad turn-touch misattribution in short SCY sprints).
-    # parse_time returns 0.0 for "0.00" fields, which we treat as absent → None.
-    def _timing_or_none(raw: str):
-        val = parse_time(raw)
-        return None if val == 0.0 else val
-
-    pad_time      = _timing_or_none(extract(line, 63, 12))
-    button_1_time = _timing_or_none(extract(line, 39, 8))
-    button_2_time = _timing_or_none(extract(line, 47, 8))
-    button_3_time = _timing_or_none(extract(line, 55, 8))
-    backup_4_time = _timing_or_none(extract(line, 75, 8))
+    # parse_time_or_none returns None for "0.00" and blank/non-numeric fields.
+    pad_time      = parse_time_or_none(extract(line, 63, 12))
+    button_1_time = parse_time_or_none(extract(line, 39, 8))
+    button_2_time = parse_time_or_none(extract(line, 47, 8))
+    button_3_time = parse_time_or_none(extract(line, 55, 8))
+    backup_4_time = parse_time_or_none(extract(line, 75, 8))
     alt_time_code = extract(line, 96, 1) or None  # observed: 'A' / 'K' / blank
 
     raw_date = extract(line, 88, 8).strip()

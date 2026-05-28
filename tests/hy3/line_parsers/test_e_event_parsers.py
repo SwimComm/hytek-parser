@@ -153,6 +153,16 @@ class TestE2BackupTimingFields(unittest.TestCase):
         self.assertIsNone(entry.finals_backup_4_time)
         self.assertIsNone(entry.finals_alt_time_code)
 
+    def test_e2_genuinely_blank_button_field_is_none(self):
+        """A blank (all-spaces) button field must yield None, not a time code enum."""
+        file, opts = self._build_file()
+        # button_1 (cols 39-46, 0-indexed [38:46]) left blank/spaces instead of 0.00
+        e2 = "E2F   54.79Y          2  3  4  12   0             0.00    0.00        0.00    0.00     12012018                           0     25"
+        self.assertEqual(130, len(e2))
+        file = e2_parser(e2, file, opts)
+        entry = file.meet.events["22X"].last_entry
+        self.assertIsNone(entry.finals_button_1_time)
+
 
 if __name__=='__main__':
     unittest.main()
