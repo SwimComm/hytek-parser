@@ -25,6 +25,8 @@ def _swimmer(meet_id: int, last_name: str = "Smith") -> Swimmer:
     s.team_code = "FOO"
     s.date_of_birth = None
     s.age = 12
+    s.citizenship = None
+    s.unparsed_d1_col_125 = None
     return s
 
 

@@ -36,6 +36,11 @@ class Swimmer:
     usa_swimming_id: str
     team_code: str  # Team 5-letter code
 
+    # Issue #118 — D1 fields previously dropped by the parser
+    citizenship: Optional[str] = None
+    # col 125; semantics unverified — name intentionally non-descriptive
+    unparsed_d1_col_125: Optional[str] = None
+
 
 @define
 class Team:
