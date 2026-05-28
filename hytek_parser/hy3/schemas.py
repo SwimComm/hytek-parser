@@ -157,10 +157,11 @@ class EventEntry:
     relay_team_id: Optional[str] = None
     relay_swim_team_code: Optional[str] = None
 
-    # Issue #118 — E1 Meet Division (cols 77-79).
-    # Values: 'JV' (Junior Varsity), 'VR' (Varsity), classification codes
-    # ('A'/'AA'/'AAA'/'BB'/...), or numeric ('0'/'1'/'2'/'3'). '0' is the
-    # most common numeric and likely means 'no division'.
+    # Issue #118 — Meet Division. The host-configured division label for the
+    # entry: 'JV'/'VR' (varsity-style), classification codes ('A'/'AA'/'AAA'/'BB'),
+    # HS enrollment classes ('5A'/'4A'/'3A'), age-group/level codes ('AG'/'SR'),
+    # or numeric ('0'/'1'/'2'/'3'). Stored at cols 77-79 in most MM versions,
+    # cols 92-93 in MM4/MM5-7.0Fa (read with col-77 precedence).
     meet_division: Optional[str] = None
 
     def __init__(

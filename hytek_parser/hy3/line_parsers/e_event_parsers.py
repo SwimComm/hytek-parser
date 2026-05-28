@@ -63,9 +63,9 @@ def e1_parser(
     entry_converted_seed_time = parse_time(extract(line, 43, 8))
     entry_converted_seed_time_course = event.course
 
-    # Issue #118 — Meet Division at cols 77-79.
-    # 'JV'/'VR'/'A'/'AA'/'AAA'/'BB'/numeric. See schema for value notes.
-    meet_division = extract(line, 77, 3) or None
+    # Meet Division: col 77-79 in most MM versions, col 92-93 in MM4/MM5-7.0Fa.
+    # The two are mutually exclusive; col 77 takes precedence.
+    meet_division = extract(line, 77, 3) or extract(line, 92, 2) or None
 
     event.get_or_create_entry(
         swimmers=entry_swimmers,

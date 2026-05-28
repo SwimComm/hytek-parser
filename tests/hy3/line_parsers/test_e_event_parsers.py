@@ -87,6 +87,17 @@ class TestE1MeetDivision(unittest.TestCase):
         entry = file.meet.events["22X"].last_entry
         self.assertIsNone(entry.meet_division)
 
+    def test_e1_meet_division_col92_fallback(self):
+        """MM4/MM5-7.0Fa store the division at cols 92-93 (col 77-79 blank).
+        meet_division must fall back to col 92."""
+        file, opts = self._build_file()
+        # 130-char line: col 77-79 (indices [76:79]) is blank, col 92-93 (indices [91:93]) = 'SW'
+        e1 = "E1M   27HanseXX    50D 11109  0U  0.00 22X   37.41S   37.41S    0.00    0.00   NN          SW   N                               70"
+        self.assertEqual(130, len(e1))
+        file = e1_parser(e1, file, opts)
+        entry = file.meet.events["22X"].last_entry
+        self.assertEqual("SW", entry.meet_division)
+
 
 class TestE2BackupTimingFields(unittest.TestCase):
     """Issue #118 — capture pad, 3 buttons, backup_4, alt_time_code from E2 rows."""
