@@ -141,5 +141,215 @@ class TestMM5RelayAlternates(unittest.TestCase):
             )
 
 
+def _slot_field(entry, slot: str, field: str):
+    """Return ``{slot}_{field}`` from an entry object."""
+    return getattr(entry, f"{slot}_{field}", None)
+
+
+def _all_entries(meet, relay_only: bool = False, individual_only: bool = False):
+    """Yield (event, entry) pairs across all events and entries."""
+    for ev in meet.events.values():
+        if relay_only and not ev.relay:
+            continue
+        if individual_only and ev.relay:
+            continue
+        for e in ev.entries:
+            yield ev, e
+
+
+class TestMM4Col92DivisionCitizenshipTiming(unittest.TestCase):
+    """MM4 4.0Ec (2013 YMCA Nationals) — issue-#118 col-92 fields.
+
+    Verifies:
+      - Team regions parsed from LSC code (col-92 fallback path)
+      - Swimmer citizenship
+      - meet_division 'SW' read via col-92 fallback
+      - E2/F2 pad and button_1 times on individual entries
+      - Relay entry prelim pad + button times
+    """
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.parsed = parse_hy3(
+            str(FIXTURE_DIR / "mm4_ymca_col92_division_citizenship.hy3")
+        )
+        cls.meet = cls.parsed.meet
+
+    def test_team_regions_md_ne_ni(self) -> None:
+        regions = {t.region for t in self.meet.teams.values() if t.region}
+        self.assertIn("MD", regions)
+        self.assertIn("NE", regions)
+        self.assertIn("NI", regions)
+
+    def test_at_least_one_swimmer_citizenship_usa(self) -> None:
+        citizenships = {
+            s.citizenship
+            for t in self.meet.teams.values()
+            for s in t.swimmers.values()
+        }
+        self.assertIn("USA", citizenships)
+
+    def test_meet_division_sw_col92_fallback(self) -> None:
+        """At least one entry carries meet_division='SW' — proves col-92 read."""
+        divisions = {
+            e.meet_division for _ev, e in _all_entries(self.meet)
+        }
+        self.assertIn("SW", divisions)
+
+    def test_individual_entry_has_pad_and_button_1_times(self) -> None:
+        with_pad_and_btn = [
+            e
+            for _ev, e in _all_entries(self.meet, individual_only=True)
+            for slot in ("prelim", "swimoff", "finals")
+            if _slot_field(e, slot, "pad_time") is not None
+            and _slot_field(e, slot, "button_1_time") is not None
+        ]
+        self.assertGreater(
+            len(with_pad_and_btn),
+            0,
+            "no individual entry found with both pad_time and button_1_time",
+        )
+
+    def test_relay_entry_prelim_pad_and_button_times(self) -> None:
+        """Relay entry has non-None prelim pad ≈ 111.38 and button_1 ≈ 111.33."""
+        relay_entries = [
+            e for _ev, e in _all_entries(self.meet, relay_only=True)
+        ]
+        self.assertGreater(len(relay_entries), 0, "no relay entries found")
+        entry = relay_entries[0]
+        self.assertIsNotNone(entry.prelim_pad_time, "relay prelim_pad_time is None")
+        self.assertIsNotNone(
+            entry.prelim_button_1_time, "relay prelim_button_1_time is None"
+        )
+        self.assertAlmostEqual(entry.prelim_pad_time, 111.38, places=2)
+        self.assertAlmostEqual(entry.prelim_button_1_time, 111.33, places=2)
+        self.assertIsNotNone(
+            entry.prelim_button_2_time, "relay prelim_button_2_time is None"
+        )
+        self.assertAlmostEqual(entry.prelim_button_2_time, 111.36, places=2)
+
+
+class TestMM5Col77DivisionAltCodeDivergence(unittest.TestCase):
+    """MM5 6.0Cc (2015 WI State/Non-State Open) — issue-#118 col-77 fields.
+
+    Verifies:
+      - Team region 'WIP'
+      - meet_division 'JV' read via col-77 primary path
+      - finals_alt_time_code values 'A' and 'K' present
+      - Pad-vs-button divergence entry (pad > button due to touchpad error)
+    """
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.parsed = parse_hy3(str(FIXTURE_DIR / "mm_col77_division.hy3"))
+        cls.meet = cls.parsed.meet
+
+    def test_team_region_wip(self) -> None:
+        regions = {t.region for t in self.meet.teams.values() if t.region}
+        self.assertIn("WIP", regions)
+
+    def test_at_least_one_swimmer_citizenship_usa(self) -> None:
+        citizenships = {
+            s.citizenship
+            for t in self.meet.teams.values()
+            for s in t.swimmers.values()
+        }
+        self.assertIn("USA", citizenships)
+
+    def test_meet_division_jv_col77_primary(self) -> None:
+        """At least one entry carries meet_division='JV' — proves col-77 primary path."""
+        divisions = {e.meet_division for _ev, e in _all_entries(self.meet)}
+        self.assertIn("JV", divisions)
+
+    def test_alt_time_codes_a_and_k_present(self) -> None:
+        """Both 'A' and 'K' must appear across all slot alt_time_code fields."""
+        alt_codes: set = set()
+        for _ev, e in _all_entries(self.meet):
+            for slot in ("prelim", "swimoff", "finals"):
+                code = _slot_field(e, slot, "alt_time_code")
+                if code is not None:
+                    alt_codes.add(code)
+        self.assertIn("A", alt_codes)
+        self.assertIn("K", alt_codes)
+
+    def test_divergence_entry_pad_above_button_1(self) -> None:
+        """The divergence entry has pad_time (107.39) meaningfully above button_1_time (102.49)."""
+        divergence_entries = [
+            (_slot_field(e, slot, "pad_time"), _slot_field(e, slot, "button_1_time"))
+            for _ev, e in _all_entries(self.meet)
+            for slot in ("prelim", "swimoff", "finals")
+            if _slot_field(e, slot, "pad_time") is not None
+            and _slot_field(e, slot, "button_1_time") is not None
+            and _slot_field(e, slot, "pad_time") > _slot_field(e, slot, "button_1_time") + 1.0
+        ]
+        self.assertGreater(
+            len(divergence_entries),
+            0,
+            "no entry found where pad_time exceeds button_1_time by >1 second",
+        )
+        pad, btn1 = divergence_entries[0]
+        self.assertAlmostEqual(pad, 107.39, places=2)
+        self.assertAlmostEqual(btn1, 102.49, places=2)
+
+
+class TestMM5PadButtonDivergenceMultiRegion(unittest.TestCase):
+    """MM5 8.0Fd (2025 MT HOT Tropical) — issue-#118 pad-vs-button divergence.
+
+    Verifies:
+      - Team regions MT and WY both present
+      - Swimmer citizenship USA
+      - finals_alt_time_code 'A' present
+      - Divergence entry: pad_time roughly half of button_1_time (touchpad misattribution)
+    """
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.parsed = parse_hy3(
+            str(FIXTURE_DIR / "mm_pad_button_divergence.hy3")
+        )
+        cls.meet = cls.parsed.meet
+
+    def test_team_regions_mt_and_wy(self) -> None:
+        regions = {t.region for t in self.meet.teams.values() if t.region}
+        self.assertIn("MT", regions)
+        self.assertIn("WY", regions)
+
+    def test_at_least_one_swimmer_citizenship_usa(self) -> None:
+        citizenships = {
+            s.citizenship
+            for t in self.meet.teams.values()
+            for s in t.swimmers.values()
+        }
+        self.assertIn("USA", citizenships)
+
+    def test_alt_time_code_a_present(self) -> None:
+        alt_codes: set = set()
+        for _ev, e in _all_entries(self.meet):
+            for slot in ("prelim", "swimoff", "finals"):
+                code = _slot_field(e, slot, "alt_time_code")
+                if code is not None:
+                    alt_codes.add(code)
+        self.assertIn("A", alt_codes)
+
+    def test_divergence_entry_pad_roughly_half_of_button_1(self) -> None:
+        """The divergence entry has pad≈36.26 while button_1≈75.29 (pad < 0.6 * button_1)."""
+        divergence_entries = [
+            (_slot_field(e, slot, "pad_time"), _slot_field(e, slot, "button_1_time"))
+            for _ev, e in _all_entries(self.meet)
+            for slot in ("prelim", "swimoff", "finals")
+            if _slot_field(e, slot, "pad_time") is not None
+            and _slot_field(e, slot, "button_1_time") is not None
+            and _slot_field(e, slot, "pad_time") < 0.6 * _slot_field(e, slot, "button_1_time")
+        ]
+        self.assertGreater(
+            len(divergence_entries),
+            0,
+            "no entry found where pad_time < 0.6 * button_1_time",
+        )
+        pad, btn1 = divergence_entries[0]
+        self.assertAlmostEqual(pad, 36.26, places=2)
+        self.assertAlmostEqual(btn1, 75.29, places=2)
+
+
 if __name__ == "__main__":
     unittest.main()
