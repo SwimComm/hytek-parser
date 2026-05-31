@@ -140,6 +140,19 @@ class TestMM5RelayAlternates(unittest.TestCase):
                 f"no alternate legs found: {sorted(entry.swimmers.keys())}",
             )
 
+    def test_d1_school_class_captured_cols_100_101(self) -> None:
+        # D1 cols 100-101 carry the school class (Fr/So/Jr/Sr) in high-school
+        # exports; surfaced via the neutrally-named unparsed_d1_col_100.
+        classes = {
+            (s.unparsed_d1_col_100 or "").strip().title()
+            for t in self.parsed.meet.teams.values()
+            for s in t.swimmers.values()
+        }
+        self.assertTrue(
+            classes & {"Fr", "So", "Jr", "Sr"},
+            f"expected at least one Fr/So/Jr/Sr school class, got {sorted(classes)}",
+        )
+
 
 def _slot_field(entry, slot: str, field: str):
     """Return ``{slot}_{field}`` from an entry object."""

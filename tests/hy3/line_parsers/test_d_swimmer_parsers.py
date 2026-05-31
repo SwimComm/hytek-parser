@@ -38,7 +38,7 @@ class TestDSwimmerParser(unittest.TestCase):
             self.assertIsNone(swimmer.team_id)
 
 class TestD1NewFields(unittest.TestCase):
-    """capture D1 citizenship (cols 113-115) and unparsed col 125."""
+    """capture D1 citizenship (cols 113-115), unparsed col 125, and unparsed cols 100-101."""
 
     def _file_with_team(self):
         opts = {"default_country": "USA"}
@@ -67,6 +67,16 @@ class TestD1NewFields(unittest.TestCase):
         swimmer = file.meet.swimmers[42]
         self.assertIsNone(swimmer.citizenship)
         self.assertIsNone(swimmer.unparsed_d1_col_125)
+        self.assertIsNone(swimmer.unparsed_d1_col_100)
+
+    def test_d1_school_class_col_100(self):
+        file, opts = self._file_with_team()
+        base = "D1M   42Hayon               Gabrielle           Gabby               B           123     11202001  9                             99"
+        # Place a school-class token at cols 100-101 (1-indexed) via slicing.
+        d1 = base[:99] + "Sr" + base[101:]
+        self.assertEqual(130, len(d1))
+        file = d1_parser(d1, file, opts)
+        self.assertEqual("Sr", file.meet.swimmers[42].unparsed_d1_col_100)
 
 
 if __name__ == "__main__":
