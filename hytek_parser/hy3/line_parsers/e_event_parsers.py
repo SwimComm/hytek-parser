@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any
 
 from hytek_parser._utils import extract, get_age_group, safe_cast, select_from_enum
-from hytek_parser.hy3._utils import parse_time
+from hytek_parser.hy3._utils import parse_time, parse_time_or_none
 from hytek_parser.hy3.enums import (
     Course,
     DisqualificationCode,
@@ -63,6 +63,10 @@ def e1_parser(
     entry_converted_seed_time = parse_time(extract(line, 43, 8))
     entry_converted_seed_time_course = event.course
 
+    # Meet Division: col 77-79 in most MM versions, col 92-93 in MM4/MM5-7.0Fa.
+    # The two are mutually exclusive; col 77 takes precedence.
+    meet_division = extract(line, 77, 3) or extract(line, 92, 2) or None
+
     event.get_or_create_entry(
         swimmers=entry_swimmers,
         relay=False,
@@ -71,6 +75,7 @@ def e1_parser(
         seed_course=entry_seed_course,
         converted_seed_time=entry_converted_seed_time,
         converted_seed_time_course=entry_converted_seed_time_course,
+        meet_division=meet_division,
     )
 
     # Update event
@@ -100,7 +105,17 @@ def e2_parser(
     heat_place = safe_cast(int, extract(line, 27, 3))
     overall_place = safe_cast(int, extract(line, 30, 4))
 
-    # Skipping over pad/plunger times since they are not that useful
+    # previously-dropped E2 timing fields.
+    # See spec for column-offset derivation and failure-mode evidence
+    # (touchpad turn-touch misattribution in short SCY sprints).
+    # parse_time_or_none returns None for "0.00" and blank/non-numeric fields.
+    pad_time      = parse_time_or_none(extract(line, 63, 12))
+    button_1_time = parse_time_or_none(extract(line, 39, 8))
+    button_2_time = parse_time_or_none(extract(line, 47, 8))
+    button_3_time = parse_time_or_none(extract(line, 55, 8))
+    backup_4_time = parse_time_or_none(extract(line, 75, 8))
+    alt_time_code = extract(line, 96, 1) or None  # observed: 'A' / 'K' / blank
+
     raw_date = extract(line, 88, 8).strip()
     date_ = datetime.strptime(raw_date, "%m%d%Y").date() if raw_date else None
 
@@ -128,6 +143,12 @@ def e2_parser(
     setattr(entry, f"{prefix}_heat_place", heat_place)
     setattr(entry, f"{prefix}_overall_place", overall_place)
     setattr(entry, f"{prefix}_date", date_)
+    setattr(entry, f"{prefix}_pad_time", pad_time)
+    setattr(entry, f"{prefix}_button_1_time", button_1_time)
+    setattr(entry, f"{prefix}_button_2_time", button_2_time)
+    setattr(entry, f"{prefix}_button_3_time", button_3_time)
+    setattr(entry, f"{prefix}_backup_4_time", backup_4_time)
+    setattr(entry, f"{prefix}_alt_time_code", alt_time_code)
 
     event.last_entry = entry
     file.meet.last_event = (event_num, event)

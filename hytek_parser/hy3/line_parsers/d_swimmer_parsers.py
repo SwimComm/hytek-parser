@@ -24,6 +24,12 @@ def d1_parser(
     swimmer.date_of_birth = date_or_none(extract(line, 89, 8))
     swimmer.age = int(extract(line, 97, 3))
 
+    # previously dropped D1 fields. Capture both per spec.
+    # citizenship: cols 113-115 (3 chars). Observed: 'USA' or blank.
+    # unparsed_d1_col_125: col 125 (1 char). Observed: 'N' or blank; semantics unverified.
+    swimmer.citizenship = extract(line, 113, 3) or None
+    swimmer.unparsed_d1_col_125 = extract(line, 125, 1) or None
+
     swimmer.team_code = team_code
 
     file.meet.add_swimmer(swimmer)

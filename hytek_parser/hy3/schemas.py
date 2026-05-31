@@ -36,6 +36,11 @@ class Swimmer:
     usa_swimming_id: str
     team_code: str  # Team 5-letter code
 
+    # D1 fields previously dropped by the parser
+    citizenship: Optional[str] = None
+    # col 125; semantics unverified — name intentionally non-descriptive
+    unparsed_d1_col_125: Optional[str] = None
+
 
 @define
 class Team:
@@ -53,13 +58,15 @@ class Team:
     state: str
     zip_code: str
     country: str
-    region: str
+    region: Optional[str]
 
     # Contact info
     daytime_phone: str
     evening_phone: str
     fax: str
     email: str
+    contact_name_1: Optional[str] = None
+    contact_name_2: Optional[str] = None
 
     # Swimmers
     swimmers: dict[int, Swimmer] = Factory(dict)
@@ -99,6 +106,14 @@ class EventEntry:
     prelim_heat_place: Optional[int] = None
     prelim_overall_place: Optional[int] = None
     prelim_date: Optional[date] = None
+    # E2 fields previously dropped (pad + 3 buttons + backup_4 + alt code)
+    prelim_pad_time: Optional[float] = None
+    prelim_button_1_time: Optional[float] = None
+    prelim_button_2_time: Optional[float] = None
+    prelim_button_3_time: Optional[float] = None
+    prelim_backup_4_time: Optional[float] = None
+    # col 96; semantics unverified — observed 'A'/'K'/blank
+    prelim_alt_time_code: Optional[str] = None
 
     # Swimoff Time info
     swimoff_time: Optional[Union[float, ReplacedTimeTimeCode]] = None
@@ -111,6 +126,14 @@ class EventEntry:
     swimoff_heat_place: Optional[int] = None
     swimoff_overall_place: Optional[int] = None
     swimoff_date: Optional[date] = None
+    # E2 fields previously dropped (pad + 3 buttons + backup_4 + alt code)
+    swimoff_pad_time: Optional[float] = None
+    swimoff_button_1_time: Optional[float] = None
+    swimoff_button_2_time: Optional[float] = None
+    swimoff_button_3_time: Optional[float] = None
+    swimoff_backup_4_time: Optional[float] = None
+    # col 96; semantics unverified — observed 'A'/'K'/blank
+    swimoff_alt_time_code: Optional[str] = None
 
     # Finals time info
     finals_time: Optional[Union[float, ReplacedTimeTimeCode]] = None
@@ -123,10 +146,25 @@ class EventEntry:
     finals_heat_place: Optional[int] = None
     finals_overall_place: Optional[int] = None
     finals_date: Optional[date] = None
+    # E2 fields previously dropped (pad + 3 buttons + backup_4 + alt code)
+    finals_pad_time: Optional[float] = None
+    finals_button_1_time: Optional[float] = None
+    finals_button_2_time: Optional[float] = None
+    finals_button_3_time: Optional[float] = None
+    finals_backup_4_time: Optional[float] = None
+    # col 96; semantics unverified — observed 'A'/'K'/blank
+    finals_alt_time_code: Optional[str] = None
 
     # Relay attribution (moved from Event — set by f1_parser)
     relay_team_id: Optional[str] = None
     relay_swim_team_code: Optional[str] = None
+
+    # Meet Division. The host-configured division label for the
+    # entry: 'JV'/'VR' (varsity-style), classification codes ('A'/'AA'/'AAA'/'BB'),
+    # HS enrollment classes ('5A'/'4A'/'3A'), age-group/level codes ('AG'/'SR'),
+    # or numeric ('0'/'1'/'2'/'3'). Stored at cols 77-79 in most MM versions,
+    # cols 92-93 in MM4/MM5-7.0Fa (read with col-77 precedence).
+    meet_division: Optional[str] = None
 
     def __init__(
         self,
@@ -139,6 +177,7 @@ class EventEntry:
         converted_seed_time_course: Course,
         relay_team_id: Optional[str] = None,
         relay_swim_team_code: Optional[str] = None,
+        meet_division: Optional[str] = None,
     ) -> None:
         self.swimmers = swimmers
         self.relay = relay
@@ -149,6 +188,7 @@ class EventEntry:
         self.converted_seed_time_course = converted_seed_time_course
         self.relay_team_id = relay_team_id
         self.relay_swim_team_code = relay_swim_team_code
+        self.meet_division = meet_division
 
         for course in ("prelim", "swimoff", "finals"):
             setattr(self, f"{course}_time", None)
@@ -161,6 +201,12 @@ class EventEntry:
             setattr(self, f"{course}_heat_place", None)
             setattr(self, f"{course}_overall_place", None)
             setattr(self, f"{course}_date", None)
+            setattr(self, f"{course}_pad_time", None)
+            setattr(self, f"{course}_button_1_time", None)
+            setattr(self, f"{course}_button_2_time", None)
+            setattr(self, f"{course}_button_3_time", None)
+            setattr(self, f"{course}_backup_4_time", None)
+            setattr(self, f"{course}_alt_time_code", None)
 
         self.prelim_dq_info = None
         self.swimoff_dq_info = None
@@ -230,6 +276,7 @@ class Event:
         converted_seed_time_course: Course,
         relay_team_id: Optional[str] = None,
         relay_swim_team_code: Optional[str] = None,
+        meet_division: Optional[str] = None,
     ) -> EventEntry:
         """Get an event entry or create one if needed."""
         entry = EventEntry(
@@ -242,6 +289,7 @@ class Event:
             converted_seed_time_course=converted_seed_time_course,
             relay_team_id=relay_team_id,
             relay_swim_team_code=relay_swim_team_code,
+            meet_division=meet_division,
         )
         if self.entries and self.entries[-1].same_swimmer_entry_as(entry):
             # P/F entries always listed together: a swimmer (individuals) or a
@@ -306,7 +354,15 @@ class Meet:
             self.swimmers[swimmer.meet_id] = swimmer
             self.teams[swimmer.team_code].swimmers[swimmer.meet_id] = swimmer
 
-    def get_or_create_team(self, name: str, short_name: str, code: str) -> Team:
+    def get_or_create_team(
+        self,
+        name: str,
+        short_name: str,
+        code: str,
+        region: Optional[str] = None,
+        contact_name_1: Optional[str] = None,
+        contact_name_2: Optional[str] = None,
+    ) -> Team:
         """Get a team or create if needed."""
         if team := self.teams.get(code):
             return team
@@ -319,13 +375,15 @@ class Meet:
                 address_2="N/A",
                 city="N/A",
                 country="N/A",
-                region="N/A",
+                region=region,
                 state="N/A",
                 zip_code="N/A",
                 daytime_phone="N/A",
                 evening_phone="N/A",
                 fax="N/A",
                 email="N/A",
+                contact_name_1=contact_name_1,
+                contact_name_2=contact_name_2,
             )
 
             # Add team, this also updates the teams dict
