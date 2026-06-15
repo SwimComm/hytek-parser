@@ -1,4 +1,6 @@
 """A Hytek hy3 file parser."""
+from importlib.metadata import version
+
 from .export_xls import ExportXlsParseError, parse_event_export_xls
 from .hy3 import HY3_LINE_PARSERS
 from .hy3_parser import parse_hy3
@@ -15,4 +17,4 @@ __all__ = [
 ]
 __author__ = "Nino Maruszewski"
 __license__ = "MIT"
-__version__ = "2.1.0"
+__version__ = version(__package__)
