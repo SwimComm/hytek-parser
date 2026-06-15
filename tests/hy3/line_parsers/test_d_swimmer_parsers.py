@@ -57,16 +57,16 @@ class TestD1NewFields(unittest.TestCase):
         file = d1_parser(d1, file, opts)
         swimmer = file.meet.swimmers[42]
         self.assertEqual("USA", swimmer.citizenship)
-        self.assertEqual("N", swimmer.unparsed_d1_col_125)
+        self.assertEqual("N", swimmer.status)
 
-    def test_d1_blank_citizenship_and_col_125(self):
+    def test_d1_blank_citizenship_and_status(self):
         file, opts = self._file_with_team()
         d1 = "D1M   42Hayon               Gabrielle           Gabby               B           123     11202001  9                             99"
         self.assertEqual(130, len(d1))
         file = d1_parser(d1, file, opts)
         swimmer = file.meet.swimmers[42]
         self.assertIsNone(swimmer.citizenship)
-        self.assertIsNone(swimmer.unparsed_d1_col_125)
+        self.assertIsNone(swimmer.status)
         self.assertIsNone(swimmer.class_year)
 
     def test_d1_school_class_col_100(self):

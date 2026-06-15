@@ -38,8 +38,11 @@ class Swimmer:
 
     # D1 fields previously dropped by the parser
     citizenship: Optional[str] = None
-    # col 125; semantics unverified — name intentionally non-descriptive
-    unparsed_d1_col_125: Optional[str] = None
+    # col 125; athlete status (Hytek MM "Status" field). Raw 1-char code — only
+    # "N" (Normal) or blank observed across ~9.25M records; other GUI statuses
+    # (Impaired/Exhibition/Foreigner/Rookie) never seen in data, so left as a
+    # raw code rather than an enum.
+    status: Optional[str] = None
     # cols 100-101; "Fr"/"So"/"Jr"/"Sr" school class in HS-meet exports,
     # other data / blank in club exports.
     class_year: Optional[str] = None

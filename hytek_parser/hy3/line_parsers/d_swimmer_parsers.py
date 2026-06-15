@@ -26,9 +26,9 @@ def d1_parser(
 
     # previously dropped D1 fields. Capture both per spec.
     # citizenship: cols 113-115 (3 chars). Observed: 'USA' or blank.
-    # unparsed_d1_col_125: col 125 (1 char). Observed: 'N' or blank; semantics unverified.
+    # status: col 125 (1 char). Athlete status; observed 'N' (Normal) or blank.
     swimmer.citizenship = extract(line, 113, 3) or None
-    swimmer.unparsed_d1_col_125 = extract(line, 125, 1) or None
+    swimmer.status = extract(line, 125, 1) or None
     # class_year: cols 100-101 (2 chars). "Fr"/"So"/"Jr"/"Sr" school
     # class in HS-meet exports; other data / blank in club exports.
     swimmer.class_year = extract(line, 100, 2) or None
