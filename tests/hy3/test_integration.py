@@ -142,9 +142,9 @@ class TestMM5RelayAlternates(unittest.TestCase):
 
     def test_d1_school_class_captured_cols_100_101(self) -> None:
         # D1 cols 100-101 carry the school class (Fr/So/Jr/Sr) in high-school
-        # exports; surfaced via the neutrally-named unparsed_d1_col_100.
+        # exports; surfaced via the class_year field.
         classes = {
-            (s.unparsed_d1_col_100 or "").strip().title()
+            (s.class_year or "").strip().title()
             for t in self.parsed.meet.teams.values()
             for s in t.swimmers.values()
         }

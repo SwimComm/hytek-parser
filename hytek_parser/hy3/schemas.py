@@ -40,9 +40,9 @@ class Swimmer:
     citizenship: Optional[str] = None
     # col 125; semantics unverified — name intentionally non-descriptive
     unparsed_d1_col_125: Optional[str] = None
-    # cols 100-101; "Fr"/"So"/"Jr"/"Sr" school class in HS-meet exports, other
-    # data in club exports — name intentionally non-descriptive (consumer interprets)
-    unparsed_d1_col_100: Optional[str] = None
+    # cols 100-101; "Fr"/"So"/"Jr"/"Sr" school class in HS-meet exports,
+    # other data / blank in club exports.
+    class_year: Optional[str] = None
 
 
 @define

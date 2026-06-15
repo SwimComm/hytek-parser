@@ -67,7 +67,7 @@ class TestD1NewFields(unittest.TestCase):
         swimmer = file.meet.swimmers[42]
         self.assertIsNone(swimmer.citizenship)
         self.assertIsNone(swimmer.unparsed_d1_col_125)
-        self.assertIsNone(swimmer.unparsed_d1_col_100)
+        self.assertIsNone(swimmer.class_year)
 
     def test_d1_school_class_col_100(self):
         file, opts = self._file_with_team()
@@ -76,7 +76,7 @@ class TestD1NewFields(unittest.TestCase):
         d1 = base[:99] + "Sr" + base[101:]
         self.assertEqual(130, len(d1))
         file = d1_parser(d1, file, opts)
-        self.assertEqual("Sr", file.meet.swimmers[42].unparsed_d1_col_100)
+        self.assertEqual("Sr", file.meet.swimmers[42].class_year)
 
 
 if __name__ == "__main__":

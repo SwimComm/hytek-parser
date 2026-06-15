@@ -29,7 +29,7 @@ def d1_parser(
     # unparsed_d1_col_125: col 125 (1 char). Observed: 'N' or blank; semantics unverified.
     swimmer.citizenship = extract(line, 113, 3) or None
     swimmer.unparsed_d1_col_125 = extract(line, 125, 1) or None
-    # unparsed_d1_col_100: cols 100-101 (2 chars). "Fr"/"So"/"Jr"/"Sr" school
+    # class_year: cols 100-101 (2 chars). "Fr"/"So"/"Jr"/"Sr" school
     # class in HS-meet exports; other data / blank in club exports.
     swimmer.class_year = extract(line, 100, 2) or None
 
