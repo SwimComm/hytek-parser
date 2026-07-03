@@ -77,8 +77,8 @@ def e1_parser(
         converted_seed_time=entry_converted_seed_time,
         converted_seed_time_course=entry_converted_seed_time_course,
         meet_division=meet_division,
+        exhibition=exhibition,
     )
-    entry.exhibition = exhibition
     event.last_entry = entry
 
     # Update event

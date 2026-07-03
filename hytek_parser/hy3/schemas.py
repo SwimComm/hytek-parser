@@ -286,6 +286,7 @@ class Event:
         relay_team_id: Optional[str] = None,
         relay_swim_team_code: Optional[str] = None,
         meet_division: Optional[str] = None,
+        exhibition: bool = False,
     ) -> EventEntry:
         """Get an event entry or create one if needed."""
         entry = EventEntry(
@@ -299,6 +300,7 @@ class Event:
             relay_team_id=relay_team_id,
             relay_swim_team_code=relay_swim_team_code,
             meet_division=meet_division,
+            exhibition=exhibition,
         )
         if self.entries and self.entries[-1].same_swimmer_entry_as(entry):
             # P/F entries always listed together: a swimmer (individuals) or a
