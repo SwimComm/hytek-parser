@@ -79,7 +79,6 @@ def e1_parser(
         meet_division=meet_division,
         exhibition=exhibition,
     )
-    event.last_entry = entry
 
     # Update event
     file.meet.last_event = (event_number, event)
