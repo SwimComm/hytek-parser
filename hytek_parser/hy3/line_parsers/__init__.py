@@ -9,7 +9,7 @@ from .d_swimmer_parsers import d1_parser
 from .e_event_parsers import e1_parser, e2_parser
 from .f_relay_parsers import f1_parser, f2_parser, f3_parser
 from .g_split_parsers import g1_parser
-from .h_dq_parsers import h1_parser
+from .h_dq_parsers import h1_parser, h2_parser
 
 __all__ = ["HY3_LINE_PARSERS"]
 
@@ -38,4 +38,5 @@ HY3_LINE_PARSERS: dict[
     "G1": g1_parser,
     # DQ info
     "H1": h1_parser,
+    "H2": h2_parser,
 }
