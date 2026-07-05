@@ -84,6 +84,7 @@ class DisqualificationInfo:
 
     code: DisqualificationCode
     info_str: Optional[str] = None
+    info_str_detail: Optional[str] = None
 
 
 @define(init=False)
@@ -341,6 +342,12 @@ class Meet:
     teams: dict[str, Team]
     swimmers: dict[int, Swimmer]
     events: dict[str, Event]
+
+    # Extended info (optional; populated by later parser stages). Kept at the
+    # end of the field block (not next to `facility`/`country`) because attrs
+    # forbids a defaulted field preceding the non-default fields above.
+    sanction_number: Optional[str] = None
+    notes: Optional[str] = None
 
     # Bookeeping
     _last_team: tuple[str, Team] = field(default=None)

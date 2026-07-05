@@ -33,6 +33,8 @@ def b2_parser(
     meet.masters = extract(line, 94, 2) == "06"
     meet.type_ = select_from_enum(MeetType, extract(line, 97, 2))
     meet.course = select_from_enum(Course, extract(line, 99, 1))
+    meet.notes = extract(line, 3, 45) or None
+    meet.sanction_number = extract(line, 109, 20) or None
 
     file.meet = meet
     return file
