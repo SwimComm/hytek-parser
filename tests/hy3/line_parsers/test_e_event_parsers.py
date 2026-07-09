@@ -23,7 +23,49 @@ class TestEEventParser(unittest.TestCase):
         self.assertEqual(11, event.age_min)
         self.assertEqual(109, event.age_max)
         self.assertEqual("22X", event.number)
+        entry = event.last_entry
+        self.assertEqual(entry.exhibition, False)
 
+    def test_e1_parser_with_exhibition(self) -> None:
+        opts = {"default_country": "USA"}
+        file = ParsedHytekFile()
+        file.meet = Meet()
+        file.meet.last_team = ("FOO", Team("Foo Bar", "FOO", "foo","","","","","","","","","","","",{}))
+        d_line = "D1M   27Hansen              Mads                                                        10272010 13                             27"
+        e_line = "E1M   27HanseMM    50A 15 18  0U  0.00  6B   27.76S   27.76S    0.00    0.00  0NN  X            N                               60"
+        file = d1_parser(d_line, file, opts)
+        result = e1_parser(e_line, file, opts)
+        event = result.meet.events.get("6B")
+        self.assertIsNotNone(event)
+        self.assertEqual(Gender.MALE, event.gender)
+        self.assertEqual(Stroke.FREESTYLE, event.stroke)
+        self.assertEqual(50, event.distance)
+        self.assertEqual(15, event.age_min)
+        self.assertEqual(18, event.age_max)
+        self.assertEqual("6B", event.number)
+        entry = event.last_entry
+        self.assertEqual(entry.exhibition, True)
+
+    def test_e1_parser_mixed_exhibition_tracks_per_entry(self) -> None:
+        opts = {"default_country": "USA"}
+        file = ParsedHytekFile()
+        file.meet = Meet()
+        file.meet.last_team = ("FOO", Team("Foo Bar", "FOO", "foo","","","","","","","","","","","",{}))
+        d_line_27 = "D1M   27Hansen              Mads                                                        10272010 13                             27"
+        d_line_28 = "D1M   28Hansen              Otto                                                        10272010 13                             28"
+        e_line_non_exh = "E1M   27HanseXX    50D 11109  0U  0.00 22X   37.41S   37.41S    0.00    0.00  0NN               N                               70"
+        e_line_exh = "E1M   28HanseYY    50D 11109  0U  0.00 22X   37.55S   37.55S    0.00    0.00  0NN  X            N                               70"
+
+        file = d1_parser(d_line_27, file, opts)
+        file = d1_parser(d_line_28, file, opts)
+        file = e1_parser(e_line_non_exh, file, opts)
+        file = e1_parser(e_line_exh, file, opts)
+
+        event = file.meet.events.get("22X")
+        self.assertIsNotNone(event)
+        self.assertEqual(2, len(event.entries))
+        self.assertEqual(False, event.entries[0].exhibition)
+        self.assertEqual(True, event.entries[1].exhibition)
 
 
 class TestE2BlankDateColumn(unittest.TestCase):

@@ -171,6 +171,7 @@ class EventEntry:
     # or numeric ('0'/'1'/'2'/'3'). Stored at cols 77-79 in most MM versions,
     # cols 92-93 in MM4/MM5-7.0Fa (read with col-77 precedence).
     meet_division: Optional[str] = None
+    exhibition: bool = False
 
     def __init__(
         self,
@@ -184,6 +185,7 @@ class EventEntry:
         relay_team_id: Optional[str] = None,
         relay_swim_team_code: Optional[str] = None,
         meet_division: Optional[str] = None,
+        exhibition: bool = False,
     ) -> None:
         self.swimmers = swimmers
         self.relay = relay
@@ -195,6 +197,7 @@ class EventEntry:
         self.relay_team_id = relay_team_id
         self.relay_swim_team_code = relay_swim_team_code
         self.meet_division = meet_division
+        self.exhibition = exhibition
 
         for course in ("prelim", "swimoff", "finals"):
             setattr(self, f"{course}_time", None)
@@ -283,6 +286,7 @@ class Event:
         relay_team_id: Optional[str] = None,
         relay_swim_team_code: Optional[str] = None,
         meet_division: Optional[str] = None,
+        exhibition: bool = False,
     ) -> EventEntry:
         """Get an event entry or create one if needed."""
         entry = EventEntry(
@@ -296,6 +300,7 @@ class Event:
             relay_team_id=relay_team_id,
             relay_swim_team_code=relay_swim_team_code,
             meet_division=meet_division,
+            exhibition=exhibition,
         )
         if self.entries and self.entries[-1].same_swimmer_entry_as(entry):
             # P/F entries always listed together: a swimmer (individuals) or a

@@ -39,6 +39,7 @@ class TestEventEntryNewTimingFields(unittest.TestCase):
         entry = self._make_entry()
         self.assertTrue(hasattr(entry, "meet_division"))
         self.assertIsNone(entry.meet_division)
+        self.assertFalse(entry.exhibition, "exhibition should default to False")
 
 
 if __name__ == "__main__":

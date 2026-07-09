@@ -66,8 +66,9 @@ def e1_parser(
     # Meet Division: col 77-79 in most MM versions, col 92-93 in MM4/MM5-7.0Fa.
     # The two are mutually exclusive; col 77 takes precedence.
     meet_division = extract(line, 77, 3) or extract(line, 92, 2) or None
+    exhibition = extract(line, 84, 1) == "X"
 
-    event.get_or_create_entry(
+    entry = event.get_or_create_entry(
         swimmers=entry_swimmers,
         relay=False,
         event_number=entry_event_number,
@@ -76,6 +77,7 @@ def e1_parser(
         converted_seed_time=entry_converted_seed_time,
         converted_seed_time_course=entry_converted_seed_time_course,
         meet_division=meet_division,
+        exhibition=exhibition,
     )
 
     # Update event
