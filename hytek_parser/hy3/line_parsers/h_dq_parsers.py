@@ -47,3 +47,31 @@ def h1_parser(
     file.meet.last_event = (event_num, event)
 
     return file
+
+
+def h2_parser(
+    line: str, file: ParsedHytekFile, opts: dict[str, Any]
+) -> ParsedHytekFile:
+    """Parse an H2 line: the specific, human-readable DQ infraction detail.
+
+    Attaches the detail text to whichever DQ slot the preceding H1 populated
+    (finals -> swimoff -> prelim), mirroring h1_parser's resolution. Unlike H1,
+    the H2 2-char code is NOT asserted against the DQ code (it is a stroke/leg
+    sub-classification, not the same DisqualificationCode). No-op if no DQ slot
+    is set.
+    """
+    event_num, event = file.meet.last_event
+    entry = event.last_entry
+
+    detail = extract(line, 5, 124) or None
+
+    if entry.finals_dq_info:
+        entry.finals_dq_info.info_str_detail = detail
+    elif entry.swimoff_dq_info:
+        entry.swimoff_dq_info.info_str_detail = detail
+    elif entry.prelim_dq_info:
+        entry.prelim_dq_info.info_str_detail = detail
+
+    event.last_entry = entry
+    file.meet.last_event = (event_num, event)
+    return file
