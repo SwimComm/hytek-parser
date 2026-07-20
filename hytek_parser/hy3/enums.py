@@ -23,6 +23,18 @@ class Stroke(Enum):
     BREASTSTROKE = "C", "3", 3
     BUTTERFLY = "D", "4", 4
     MEDLEY = "E", "5", 5
+    # Diving. Hy-Tek encodes the BOARD in the stroke column:
+    #   F = 1-metre springboard, G = 3-metre springboard, H = platform.
+    # Verified on a multi-conference corpus: the chars nest strictly
+    # (F, then F+G, then F+G+H -- never G without F, never H without G),
+    # carry the same dive count within a meet, and their median scores
+    # ascend with degree of difficulty.
+    # Without these members all three fall through select_from_enum() to
+    # UNKNOWN, which is the catch-all for any unrecognized byte -- making
+    # diving indistinguishable from file corruption.
+    DIVING_1M = "F"
+    DIVING_3M = "G"
+    DIVING_PLATFORM = "H"
 
     UNKNOWN = "U", "0", 0
 
