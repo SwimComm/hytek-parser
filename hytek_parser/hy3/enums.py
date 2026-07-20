@@ -23,6 +23,12 @@ class Stroke(Enum):
     BREASTSTROKE = "C", "3", 3
     BUTTERFLY = "D", "4", 4
     MEDLEY = "E", "5", 5
+    # Diving. Hy-Tek writes 'F' in the stroke column and the DIVE COUNT
+    # (11 championship / 6 dual) in the distance column. Without this member
+    # 'F' falls through select_from_enum() to UNKNOWN, which is a catch-all
+    # for any unrecognized byte -- making diving indistinguishable from file
+    # corruption for every consumer.
+    DIVING = "F", "6", 6
 
     UNKNOWN = "U", "0", 0
 
