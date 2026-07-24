@@ -17,9 +17,13 @@ def h1_parser(
     dq_code = select_from_enum(DisqualificationCode, extract(line, 3, 2))
     dq_info = extract(line, 5, 124)  # Whitespace is stripped
 
-    assert (
-        entry.prelim_dq_info or entry.swimoff_dq_info or entry.finals_dq_info
-    ), "There must be a DQ for there to be an H1 line"
+    # No-op if the entry carries no DQ slot to attach to — mirrors h2_parser.
+    # An H1 can appear whose last_entry is not the DQ'd swim it describes (e.g. a
+    # relay DQ, or a non-DQ entry emitted between the DQ result and its H1); skip
+    # the detail rather than raising. The DQ result itself is unaffected, only the
+    # human-readable reason string is dropped.
+    if not (entry.prelim_dq_info or entry.swimoff_dq_info or entry.finals_dq_info):
+        return file
 
     if entry.finals_dq_info:
         # DQ happened in prelims

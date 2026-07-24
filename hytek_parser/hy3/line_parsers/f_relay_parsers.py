@@ -172,7 +172,14 @@ def f3_parser(
             # Out of swimmers
             break
 
-        swimmer = file.meet.swimmers[swimmer_meet_id]
+        swimmer = file.meet.swimmers.get(swimmer_meet_id)
+        if swimmer is None:
+            # The F3 leg references a swimmer meet-id with no D1 roster record in
+            # this file — seen in some incomplete meet exports (e.g. relay legs for
+            # athletes the roster section omits). Skip the leg rather than raising a
+            # KeyError; the relay keeps its other legs. Mirrors the tolerance the
+            # empty-swimmers and absent-leg-1 cases already get below.
+            continue
         swimmer_leg = safe_cast(int, extract(line, 15 + offset, 1))
 
         # Hy-Tek encodes legs 1..8; preserve the leg number as-is.

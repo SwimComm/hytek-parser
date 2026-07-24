@@ -134,6 +134,34 @@ class TestF3DictKeyedSwimmers(unittest.TestCase):
         entry = result.meet.last_event[1].last_entry
         self.assertEqual(set(entry.swimmers.keys()), {1, 2, 3, 4, 5, 6, 7, 8})
 
+    @staticmethod
+    def _f3_line(pairs):
+        # Build an F3 line from (meet_id, leg) pairs. Each 13-char block is a
+        # 5-char right-justified meet_id (cols 4-8), 6 pad, 1-char leg (col 15), pad.
+        line = "F3 "
+        for mid, leg in pairs:
+            line += f"{mid:>5d}" + " " * 6 + f"{leg:d}" + " "
+        return line
+
+    def test_f3_unrostered_swimmer_id_is_skipped_not_raised(self):
+        # Regression: an F3 relay leg referencing a swimmer meet-id with no D1
+        # roster record in the file must be skipped, not raise KeyError. Roster
+        # has ids 1..8; id 42 is absent, so leg 1 is dropped and 2..4 are kept.
+        file, opts = self._file_with_relay_entry_and_4_swimmers()
+        f3_line = self._f3_line([(42, 1), (2, 2), (3, 3), (4, 4)])
+        result = f3_parser(f3_line, file, opts)  # must not raise
+        entry = result.meet.last_event[1].last_entry
+        self.assertEqual(set(entry.swimmers.keys()), {2, 3, 4})
+
+    def test_f3_all_unrostered_yields_empty_swimmers_no_raise(self):
+        # Every leg references an absent id → empty swimmers dict, still no raise
+        # (the empty-dict age guard already handles this downstream).
+        file, opts = self._file_with_relay_entry_and_4_swimmers()
+        f3_line = self._f3_line([(40, 1), (41, 2), (42, 3), (43, 4)])
+        result = f3_parser(f3_line, file, opts)  # must not raise
+        entry = result.meet.last_event[1].last_entry
+        self.assertEqual(entry.swimmers, {})
+
 
 class TestF2BackupTimingFields(unittest.TestCase):
     """F2 timing fields. Same offsets as E2 for the five timing

@@ -69,5 +69,40 @@ class TestH2DqParser(unittest.TestCase):
         self.assertIsNone(entry.finals_dq_info.info_str_detail)
 
 
+class TestH1DqParser(unittest.TestCase):
+
+    def _file_with_entry(self):
+        opts = {"default_country": "USA"}
+        file = ParsedHytekFile()
+        file.meet = Meet()
+        file.meet.last_team = ("FOO", Team("Foo Bar", "FOO", "foo", "", "", "", "", "", "", "", "", "", "", "", {}))
+        d_line = "D1M   27Hansen              Mads                                                        10272010 13                             27"
+        e_line = "E1M   27HanseXX    50D 11109  0U  0.00 22X   37.41S   37.41S    0.00    0.00  0NN               N                               70"
+        file = d1_parser(d_line, file, opts)
+        file = e1_parser(e_line, file, opts)
+        return file, opts
+
+    def test_h1_sets_reason_on_finals_dq(self) -> None:
+        from hytek_parser.hy3.line_parsers.h_dq_parsers import h1_parser
+        file, opts = self._file_with_entry()
+        entry = file.meet.last_event[1].last_entry
+        entry.finals_dq_info = DisqualificationInfo(DisqualificationCode.FLY_KICK_ALTERNATING, "")
+        # "H1" + "1A" (FLY_KICK_ALTERNATING, matches the slot's code) + reason text
+        result = h1_parser("H11AAlternating Kick", file, opts)
+        self.assertEqual("Alternating Kick", result.meet.last_event[1].last_entry.finals_dq_info.info_str)
+
+    def test_h1_no_dq_is_noop(self) -> None:
+        # Regression: an H1 line whose entry carries no DQ slot must be a no-op,
+        # not raise — mirroring h2_parser. (A relay DQ, or a non-DQ entry emitted
+        # between the DQ result and its H1, resolves last_entry to a non-DQ entry.)
+        from hytek_parser.hy3.line_parsers.h_dq_parsers import h1_parser
+        file, opts = self._file_with_entry()
+        result = h1_parser("H11AAlternating Kick", file, opts)  # must not raise
+        entry = result.meet.last_event[1].last_entry
+        self.assertIsNone(entry.finals_dq_info)
+        self.assertIsNone(entry.swimoff_dq_info)
+        self.assertIsNone(entry.prelim_dq_info)
+
+
 if __name__ == "__main__":
     unittest.main()
