@@ -30,3 +30,32 @@ def parse_time_or_none(raw_time: str) -> Optional[float]:
     """
     val = parse_time(raw_time)
     return val if isinstance(val, float) and val > 0.0 else None
+
+
+def parse_reaction_time(raw: str) -> Optional[float]:
+    """Parse a reaction/takeoff-time column (E2 col 83-87, F2 col 83-102).
+
+    NEGATIVE VALUES ARE MEANINGFUL and load-bearing here: a relay takeover slot
+    records an early exchange as a negative number (7,868 values corpus-wide).
+    ``parse_time_or_none`` requires > 0.0 and would silently destroy every one
+    of them -- do not substitute it.
+
+    Sentinels, all meaning "not recorded": blank, 0.00 in any sign spelling,
+    and the literal NRT ("No Reaction Time") that Meet Manager writes into
+    takeover slots when the exchange was not measured.
+
+    Values above the plausible reaction range are returned unchanged. A
+    minority of files put something else in these columns; its meaning is
+    unresolved, and filtering it here would make it permanently invisible.
+    """
+    val = raw.strip()
+    if not val or val.upper() == "NRT":
+        return None
+    try:
+        num = float(val)
+    except ValueError:
+        # Observed malformed forms: a bare "+" sign, stray high bytes.
+        return None
+    # float() maps "0.00", "+0.00" and "-0.00" all to zero; all three are the
+    # "not recorded" sentinel.
+    return None if num == 0.0 else num
