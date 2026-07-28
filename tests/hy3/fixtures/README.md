@@ -37,7 +37,7 @@ same column width so the files remain parseable:
 
 The `E1`/`F3` name prefixes are not read by any parser, but they do carry a
 real surname fragment, so they are redacted to match the `D1` placeholder.
-Fixtures added before this rule was written still carry them.
+The rule applies to every fixture in this directory.
 
 Team codes, team names, meet name, facility, and event metadata are
 intact — these are public information from the original meet results.
