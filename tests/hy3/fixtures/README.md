@@ -17,7 +17,7 @@ from publicly distributed meet results:
 | `mm_col77_division.hy3` | MM5 6.0Cc | 2015 State/Non-State Open 25 yd (Wisconsin Swimming) | E1 col-77 `meet_division` (`JV`); E2 `alt_time_code` (`A`, `K`); pad-vs-button divergence (pad=107.39 vs btn1=102.49); C1 `region` (`WI`) |
 | `mm_pad_button_divergence.hy3` | MM5 8.0Fd | 2025 MT HOT Tropical Meet (Montana Swimming) | clear pad-vs-button divergence (pad=36.26 vs result=75.29, half-pool touchpad); E2 `alt_time_code` (`A`); two LSC regions (MT, WY) |
 | `mm_reaction_times_dense.hy3` | MM5 8.0Gh | 2026 CA SCS Summer A/G Champs @ BREA (Southern California Swimming) | E2 `reaction_time` densely populated (35 of 37 rows, 0.53-0.90); F2 four-slot `reaction_times` fully populated, including a relay with three negative takeovers |
-| `mm_relay_nrt_sentinel.hy3` | MM5 7.0Dd | 2019 Western Zone Age Group Championships (Montana Swimming) | F2 `NRT` sentinel on every takeover slot and a signed `+0.00` on every leadoff; E2 reaction column blank throughout |
+| `mm_relay_nrt_sentinel.hy3` | MM5 7.0Dd | 2019 Western Zone Age Group Championships (Inland Empire Swimming) | F2 `NRT` sentinel on every takeover slot and a signed `+0.00` on every leadoff; E2 reaction column carries a signed `+0.00` on 25 of 40 rows, blank on the other 15 |
 
 ## Redaction
 

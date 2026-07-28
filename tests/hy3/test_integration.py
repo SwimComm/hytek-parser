@@ -478,7 +478,9 @@ class TestRelayNrtSentinel(unittest.TestCase):
             self.assertEqual([None, None, None, None], quad)
 
     def test_individual_reaction_times_all_none(self) -> None:
-        """This generation left E2 col 83-87 blank throughout."""
+        """This generation's E2 col 83-87 is a signed +0.00 sentinel on most
+        rows (25 of 40) and blank on the rest (15 of 40) -- never blank
+        throughout. Both spellings are "not recorded" and must parse to None."""
         values = [
             _slot_field(e, slot, "reaction_time")
             for _ev, e in _all_entries(self.meet, individual_only=True)
