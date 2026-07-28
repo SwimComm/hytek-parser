@@ -366,5 +366,136 @@ class TestMM5PadButtonDivergenceMultiRegion(unittest.TestCase):
         self.assertAlmostEqual(btn1, 75.29, places=2)
 
 
+class TestReactionTimesDense(unittest.TestCase):
+    """MM5 8.0Gh (2026 CA SCS Summer A/G Champs) — reaction times populated.
+
+    A modern fully-automatic-timing meet: nearly every individual E2 row
+    carries a start reaction time, and every relay F2 row carries all four
+    takeoff slots including negative (early) exchanges.
+    """
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.parsed = parse_hy3(str(FIXTURE_DIR / "mm_reaction_times_dense.hy3"))
+        cls.meet = cls.parsed.meet
+
+    def _individual_reaction_times(self) -> list:
+        return [
+            v
+            for _ev, e in _all_entries(self.meet, individual_only=True)
+            for slot in ("prelim", "swimoff", "finals")
+            if (v := _slot_field(e, slot, "reaction_time")) is not None
+        ]
+
+    def _relay_reaction_times(self) -> list:
+        return [
+            v
+            for _ev, e in _all_entries(self.meet, relay_only=True)
+            for slot in ("prelim", "swimoff", "finals")
+            if (v := _slot_field(e, slot, "reaction_times")) is not None
+        ]
+
+    def test_individual_reaction_times_populated_and_plausible(self) -> None:
+        values = self._individual_reaction_times()
+        self.assertGreater(len(values), 20, "expected a densely populated fixture")
+        # A one-column misread of E2 col 83-87 still yields plausible-looking
+        # floats, so bound the range rather than merely asserting non-None.
+        self.assertTrue(
+            all(0.0 < v <= 2.0 for v in values),
+            f"implausible reaction times: {sorted(values)[:5]}",
+        )
+
+    def test_relay_entries_expose_four_reaction_slots(self) -> None:
+        quads = self._relay_reaction_times()
+        self.assertGreater(len(quads), 0, "no relay reaction-time lists parsed")
+        for quad in quads:
+            self.assertEqual(4, len(quad), f"expected 4 takeoff slots, got {quad}")
+        fully_populated = [q for q in quads if all(v is not None for v in q)]
+        self.assertGreater(
+            len(fully_populated), 0, "expected at least one all-slots relay row"
+        )
+
+    def test_relay_has_a_negative_takeover(self) -> None:
+        """Slots 2-4 are exchanges and go negative when a swimmer leaves early.
+
+        This is the regression guard for anyone tempted to route these columns
+        through a >0.0 filter, which would silently drop every early exchange.
+        """
+        negatives = [
+            v for quad in self._relay_reaction_times() for v in quad[1:] if v and v < 0
+        ]
+        self.assertGreater(len(negatives), 0, "no negative takeover value parsed")
+        self.assertTrue(
+            all(-2.0 <= v < 0.0 for v in negatives),
+            f"implausible negative takeovers: {negatives}",
+        )
+
+    def test_relay_leadoff_slot_is_never_negative(self) -> None:
+        """Slot 1 is a block start, not an exchange; it cannot be early."""
+        leadoffs = [q[0] for q in self._relay_reaction_times() if q[0] is not None]
+        self.assertGreater(len(leadoffs), 0, "no leadoff reaction times parsed")
+        self.assertTrue(all(v > 0 for v in leadoffs), f"negative leadoff: {leadoffs}")
+
+
+class TestRelayNrtSentinel(unittest.TestCase):
+    """MM5 7.0Dd (2019 Western Zone Age Group Champs) — the NRT sentinel.
+
+    The opposite of the dense fixture: Meet Manager wrote the literal ``NRT``
+    ("No Reaction Time") into every takeover slot and a signed ``+0.00`` into
+    every leadoff. Both spellings mean "not recorded" and must parse to None
+    rather than to 0.0 or a crash.
+    """
+
+    FIXTURE = "mm_relay_nrt_sentinel.hy3"
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.parsed = parse_hy3(str(FIXTURE_DIR / cls.FIXTURE))
+        cls.meet = cls.parsed.meet
+
+    def test_fixture_still_contains_the_raw_sentinels(self) -> None:
+        """Tripwire: a regenerated fixture that lost NRT would pass silently."""
+        raw = (FIXTURE_DIR / self.FIXTURE).read_text(encoding="latin-1")
+        f2_lines = [l for l in raw.splitlines() if l.startswith("F2")]
+        self.assertGreater(len(f2_lines), 0, "fixture has no F2 lines")
+        self.assertTrue(
+            any("NRT" in l for l in f2_lines), "fixture no longer carries NRT"
+        )
+        self.assertTrue(
+            any("+0.00" in l[82:102] for l in f2_lines),
+            "fixture no longer carries a signed +0.00 leadoff",
+        )
+
+    def test_every_relay_reaction_slot_is_none(self) -> None:
+        quads = [
+            v
+            for _ev, e in _all_entries(self.meet, relay_only=True)
+            for slot in ("prelim", "swimoff", "finals")
+            if (v := _slot_field(e, slot, "reaction_times")) is not None
+        ]
+        self.assertGreater(len(quads), 0, "no relay reaction-time lists parsed")
+        for quad in quads:
+            self.assertEqual([None, None, None, None], quad)
+
+    def test_individual_reaction_times_all_none(self) -> None:
+        """This generation left E2 col 83-87 blank throughout."""
+        values = [
+            _slot_field(e, slot, "reaction_time")
+            for _ev, e in _all_entries(self.meet, individual_only=True)
+            for slot in ("prelim", "swimoff", "finals")
+        ]
+        self.assertGreater(len(values), 0, "no individual entries parsed")
+        self.assertTrue(all(v is None for v in values))
+
+    def test_results_still_parse_around_the_sentinels(self) -> None:
+        """The sentinel must not cost the file its swimmers, events or times."""
+        self.assertGreater(len(self.meet.swimmers), 0)
+        self.assertGreater(len(self.meet.events), 0)
+        finals = [
+            e.finals_time for _ev, e in _all_entries(self.meet) if e.finals_time
+        ]
+        self.assertGreater(len(finals), 0, "no finals times parsed")
+
+
 if __name__ == "__main__":
     unittest.main()
