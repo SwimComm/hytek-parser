@@ -1,3 +1,4 @@
+import math
 from typing import Optional, Union
 
 from hytek_parser._utils import safe_cast, select_from_enum
@@ -55,6 +56,13 @@ def parse_reaction_time(raw: str) -> Optional[float]:
         num = float(val)
     except ValueError:
         # Observed malformed forms: a bare "+" sign, stray high bytes.
+        return None
+    if not math.isfinite(num):
+        # float() accepts "nan"/"inf"/"-inf", all five characters or fewer,
+        # so they fit this column like any other token. Neither is a
+        # reaction time -- and a bare int() downstream would raise on them
+        # (ValueError on nan, OverflowError on inf) instead of yielding None
+        # like every other malformed token, dropping the whole file.
         return None
     # float() maps "0.00", "+0.00" and "-0.00" all to zero; all three are the
     # "not recorded" sentinel.

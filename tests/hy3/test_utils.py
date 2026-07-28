@@ -72,6 +72,22 @@ class TestParseReactionTime(unittest.TestCase):
         # unresolved. The parser reports what the file says; consumers decide.
         self.assertAlmostEqual(9.30, parse_reaction_time(" 9.30"), places=2)
 
+    def test_nan_is_none(self) -> None:
+        # float() accepts "nan" (5 characters, fits the column); a bare int()
+        # downstream would raise ValueError on it instead of yielding None.
+        self.assertIsNone(parse_reaction_time("  nan"))
+
+    def test_negative_nan_is_none(self) -> None:
+        self.assertIsNone(parse_reaction_time(" -nan"))
+
+    def test_inf_is_none(self) -> None:
+        # float() accepts "inf"; a bare int() downstream would raise
+        # OverflowError on it instead of yielding None.
+        self.assertIsNone(parse_reaction_time("  inf"))
+
+    def test_negative_inf_is_none(self) -> None:
+        self.assertIsNone(parse_reaction_time(" -inf"))
+
 
 if __name__=='__main__':
 	unittest.main()
