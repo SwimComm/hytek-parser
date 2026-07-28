@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any
 
 from hytek_parser._utils import extract, get_age_group, safe_cast, select_from_enum
-from hytek_parser.hy3._utils import parse_time, parse_time_or_none
+from hytek_parser.hy3._utils import parse_reaction_time, parse_time, parse_time_or_none
 from hytek_parser.hy3.enums import (
     Course,
     DisqualificationCode,
@@ -117,6 +117,8 @@ def e2_parser(
     button_3_time = parse_time_or_none(extract(line, 55, 8))
     backup_4_time = parse_time_or_none(extract(line, 75, 8))
     alt_time_code = extract(line, 96, 1) or None  # observed: 'A' / 'K' / blank
+    # col 83-87. Signed; sentinels are blank / 0.00 in any sign spelling.
+    reaction_time = parse_reaction_time(extract(line, 83, 5))
 
     raw_date = extract(line, 88, 8).strip()
     date_ = datetime.strptime(raw_date, "%m%d%Y").date() if raw_date else None
@@ -150,6 +152,7 @@ def e2_parser(
     setattr(entry, f"{prefix}_button_2_time", button_2_time)
     setattr(entry, f"{prefix}_button_3_time", button_3_time)
     setattr(entry, f"{prefix}_backup_4_time", backup_4_time)
+    setattr(entry, f"{prefix}_reaction_time", reaction_time)
     setattr(entry, f"{prefix}_alt_time_code", alt_time_code)
 
     event.last_entry = entry

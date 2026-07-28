@@ -1,3 +1,4 @@
+import datetime
 import unittest
 from hytek_parser.hy3.schemas import ParsedHytekFile
 from hytek_parser.hy3.line_parsers.d_swimmer_parsers import d1_parser
@@ -215,6 +216,66 @@ class TestE2BackupTimingFields(unittest.TestCase):
         file = e2_parser(e2, file, opts)
         entry = file.meet.events["22X"].last_entry
         self.assertIsNone(entry.finals_button_1_time)
+
+
+class TestE2ReactionTime(unittest.TestCase):
+    """E2 col 83-87 carries the swimmer's start reaction time."""
+
+    def _build_file(self):
+        opts = {"default_country": "USA"}
+        file = ParsedHytekFile()
+        file.meet = Meet()
+        file.meet.last_team = (
+            "FOO",
+            Team("Foo Bar", "FOO", "FOO", "", "", "", "", "", "", "", "", "", "", "", {}),
+        )
+        d_line = "D1M   27Hansen              Mads                                                        10272010 13                             27"
+        e1_line = "E1M   27HanseXX    50D 11109  0U  0.00 22X   37.41S   37.41S    0.00    0.00  0NN               N                               70"
+        file = d1_parser(d_line, file, opts)
+        file = e1_parser(e1_line, file, opts)
+        return file, opts
+
+    def test_e2_reaction_time_populated(self):
+        """Real row: 2026 CA SCS Summer A-G Champs, reaction 0.56."""
+        file, opts = self._build_file()
+        e2 = "E2P   38.78L       0  1  3  6  34  0   38.87   38.63    0.00        38.78     0.00 0.5607242026    0                            27"
+        self.assertEqual(130, len(e2))
+        file = e2_parser(e2, file, opts)
+        entry = file.meet.events["22X"].last_entry
+        self.assertAlmostEqual(0.56, entry.prelim_reaction_time, places=2)
+
+    def test_e2_reaction_time_does_not_shift_the_date(self):
+        """Offset regression: reading col 83-87 must leave the date at col 88.
+
+        A one-column error still yields plausible-looking floats, so the date
+        is the only cheap tripwire that catches it.
+        """
+        file, opts = self._build_file()
+        e2 = "E2P   38.78L       0  1  3  6  34  0   38.87   38.63    0.00        38.78     0.00 0.5607242026    0                            27"
+        file = e2_parser(e2, file, opts)
+        entry = file.meet.events["22X"].last_entry
+        self.assertEqual(datetime.date(2026, 7, 24), entry.prelim_date)
+        # The pad time must also be untouched by the new read.
+        self.assertAlmostEqual(38.78, entry.prelim_pad_time, places=2)
+
+    def test_e2_zero_reaction_time_is_none(self):
+        """Real row: 2014 STAR Tarheel States, reaction column reads 0.00."""
+        file, opts = self._build_file()
+        e2 = "E2F   56.83Y       0  1  3  5  15  0   56.75    0.00    0.00        56.83     0.00 0.0003222014                           0     76"
+        self.assertEqual(130, len(e2))
+        file = e2_parser(e2, file, opts)
+        entry = file.meet.events["22X"].last_entry
+        self.assertIsNone(entry.finals_reaction_time)
+
+    def test_e2_blank_reaction_time_is_none(self):
+        """Real row from the same meet with an empty reaction column."""
+        file, opts = self._build_file()
+        e2 = "E2P   36.26L       0  1  3  3  74  0   36.43   36.46    0.00        36.26     0.00     07262026    0                            56"
+        self.assertEqual(130, len(e2))
+        file = e2_parser(e2, file, opts)
+        entry = file.meet.events["22X"].last_entry
+        self.assertIsNone(entry.prelim_reaction_time)
+        self.assertEqual(datetime.date(2026, 7, 26), entry.prelim_date)
 
 
 if __name__=='__main__':

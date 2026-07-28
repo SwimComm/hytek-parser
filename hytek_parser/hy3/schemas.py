@@ -119,6 +119,7 @@ class EventEntry:
     prelim_button_2_time: Optional[float] = None
     prelim_button_3_time: Optional[float] = None
     prelim_backup_4_time: Optional[float] = None
+    prelim_reaction_time: Optional[float] = None
     # col 96; semantics unverified — observed 'A'/'K'/blank
     prelim_alt_time_code: Optional[str] = None
 
@@ -139,6 +140,7 @@ class EventEntry:
     swimoff_button_2_time: Optional[float] = None
     swimoff_button_3_time: Optional[float] = None
     swimoff_backup_4_time: Optional[float] = None
+    swimoff_reaction_time: Optional[float] = None
     # col 96; semantics unverified — observed 'A'/'K'/blank
     swimoff_alt_time_code: Optional[str] = None
 
@@ -159,6 +161,7 @@ class EventEntry:
     finals_button_2_time: Optional[float] = None
     finals_button_3_time: Optional[float] = None
     finals_backup_4_time: Optional[float] = None
+    finals_reaction_time: Optional[float] = None
     # col 96; semantics unverified — observed 'A'/'K'/blank
     finals_alt_time_code: Optional[str] = None
 
@@ -216,6 +219,7 @@ class EventEntry:
             setattr(self, f"{course}_button_2_time", None)
             setattr(self, f"{course}_button_3_time", None)
             setattr(self, f"{course}_backup_4_time", None)
+            setattr(self, f"{course}_reaction_time", None)
             setattr(self, f"{course}_alt_time_code", None)
 
         self.prelim_dq_info = None
