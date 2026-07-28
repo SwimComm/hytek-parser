@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any
 
 from hytek_parser._utils import extract, get_age_group, safe_cast, select_from_enum
-from hytek_parser.hy3._utils import parse_time, parse_time_or_none
+from hytek_parser.hy3._utils import parse_reaction_time, parse_time, parse_time_or_none
 from hytek_parser.hy3.enums import (
     Course,
     DisqualificationCode,
@@ -108,15 +108,21 @@ def f2_parser(
     overall_place = safe_cast(int, extract(line, 30, 4))
 
     # previously-dropped F2 timing fields. The five timing-column
-    # offsets are IDENTICAL to e2_parser; only alt_time_code differs because F2
-    # has a 15-column gap before its date field (date at col 103, not 88).
-    # F2 alt_time_code lives at col 111, not col 96.
+    # offsets are IDENTICAL to e2_parser. F2 then carries FOUR reaction-time
+    # slots at cols 83-102 (5 chars each) where E2 carries one at 83-87, which
+    # is why F2's date sits at col 103 and its alt_time_code at col 111.
+    # Slot 1 is the leadoff block start; slots 2-4 are exchange takeovers and
+    # are legitimately negative when a swimmer leaves early.
     pad_time      = parse_time_or_none(extract(line, 63, 12))
     button_1_time = parse_time_or_none(extract(line, 39, 8))
     button_2_time = parse_time_or_none(extract(line, 47, 8))
     button_3_time = parse_time_or_none(extract(line, 55, 8))
     backup_4_time = parse_time_or_none(extract(line, 75, 8))
     alt_time_code = extract(line, 111, 1) or None  # F2 offset; observed: 'A'/'K'/blank
+
+    reaction_times = [
+        parse_reaction_time(extract(line, 83 + 5 * i, 5)) for i in range(4)
+    ]
 
     raw_date = extract(line, 103, 8).strip()
     date_ = datetime.strptime(raw_date, "%m%d%Y").date() if raw_date else None
@@ -150,6 +156,7 @@ def f2_parser(
     setattr(entry, f"{prefix}_button_2_time", button_2_time)
     setattr(entry, f"{prefix}_button_3_time", button_3_time)
     setattr(entry, f"{prefix}_backup_4_time", backup_4_time)
+    setattr(entry, f"{prefix}_reaction_times", reaction_times)
     setattr(entry, f"{prefix}_alt_time_code", alt_time_code)
 
     event.last_entry = entry

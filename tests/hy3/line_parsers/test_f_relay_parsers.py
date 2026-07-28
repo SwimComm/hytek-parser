@@ -1,3 +1,4 @@
+import datetime
 import unittest
 
 from hytek_parser.hy3.schemas import (
@@ -211,6 +212,59 @@ class TestF2BackupTimingFields(unittest.TestCase):
         self.assertAlmostEqual(111.16, entry.finals_button_2_time, places=2)
         self.assertAlmostEqual(111.06, entry.finals_pad_time, places=2)
         self.assertIsNone(entry.finals_alt_time_code)
+
+
+class TestF2ReactionTimes(unittest.TestCase):
+    """F2 cols 83-102 carry four reaction times: leg 1 is a block start,
+    legs 2-4 are exchange takeovers."""
+
+    def _build_file_with_relay_entry(self):
+        opts = {"default_country": "USA"}
+        file = ParsedHytekFile()
+        file.meet = Meet()
+        file.meet.last_team = (
+            "FOO",
+            Team("Foo Bar", "FOO", "FOO", "", "", "", "", "", "", "", "", "", "", "", {}),
+        )
+        f1_line = "F1FOO  A   0FFG   200E  0109  0S 30.00  2   112.37Y  112.37Y   52.00    0.00   NN   4           NA                              29"
+        file = f1_parser(f1_line, file, opts)
+        return file, opts
+
+    def test_f2_four_reaction_times_with_negative_takeover(self):
+        """Real row: 2026 CA SCS Summer A-G Champs. Leg 4 exchanged early."""
+        file, opts = self._build_file_with_relay_entry()
+        f2 = "F2F  121.77L       0  1  6  3  11  0  121.70  121.98    0.00       121.77     0.00 0.64 0.47 0.40-0.2907242026    0       0     19"
+        self.assertEqual(130, len(f2))
+        file = f2_parser(f2, file, opts)
+        entry = file.meet.last_event[1].last_entry
+        rts = entry.finals_reaction_times
+        self.assertEqual(4, len(rts))
+        self.assertAlmostEqual(0.64, rts[0], places=2)
+        self.assertAlmostEqual(0.47, rts[1], places=2)
+        self.assertAlmostEqual(0.40, rts[2], places=2)
+        self.assertAlmostEqual(-0.29, rts[3], places=2)
+
+    def test_f2_nrt_sentinel_and_signed_zero(self):
+        """Real row: 2019 MT Western Zone Age Group Champs.
+
+        Leg 1 writes '+0.00'; the three takeover slots write the literal NRT
+        ('No Reaction Time'). All four mean 'not recorded'.
+        """
+        file, opts = self._build_file_with_relay_entry()
+        f2 = "F2F  272.84L       0  2  1  5  19  0  273.04  272.96    0.00       272.84     0.00+0.00  NRT  NRT  NRT08072019            0     80"
+        self.assertEqual(130, len(f2))
+        file = f2_parser(f2, file, opts)
+        entry = file.meet.last_event[1].last_entry
+        self.assertEqual([None, None, None, None], entry.finals_reaction_times)
+
+    def test_f2_reaction_times_do_not_shift_the_date(self):
+        """Offset regression: F2's date sits at col 103, after all four slots."""
+        file, opts = self._build_file_with_relay_entry()
+        f2 = "F2F  272.84L       0  2  1  5  19  0  273.04  272.96    0.00       272.84     0.00+0.00  NRT  NRT  NRT08072019            0     80"
+        file = f2_parser(f2, file, opts)
+        entry = file.meet.last_event[1].last_entry
+        self.assertEqual(datetime.date(2019, 8, 7), entry.finals_date)
+        self.assertAlmostEqual(272.84, entry.finals_pad_time, places=2)
 
 
 if __name__ == "__main__":
