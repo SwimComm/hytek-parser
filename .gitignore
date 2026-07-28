@@ -139,3 +139,6 @@ cython_debug/
 
 # Hytek test files
 hytek-test-files/
+
+# A library ships no lockfile
+uv.lock
