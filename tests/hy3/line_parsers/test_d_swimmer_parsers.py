@@ -37,6 +37,25 @@ class TestDSwimmerParser(unittest.TestCase):
             self.assertIsNone(swimmer.date_of_birth)
             self.assertIsNone(swimmer.team_id)
 
+    def test_d1_parser_lowercase_sex_byte(self) -> None:
+        """Column 3 is decoded case-insensitively.
+
+        A lowercase sex byte must reach MALE. If it degrades to UNKNOWN,
+        a swimmer whose sex the file DID state is recorded as unstated.
+        """
+        line = "D1m  260Doe                 John                                                        01112016  8                             58"
+        self.assertEqual(130, len(line))
+        file = ParsedHytekFile()
+        file.meet = Meet()
+        file.meet.last_team = ("FOO", Team("Foo Bar", "FOO", "foo","","","","","","","","","","","",{}))
+        opts: dict[str, Any] = {}
+        result = d1_parser(line, file, opts)
+        self.assertEqual(1, len(result.meet.swimmers))
+        for swimmer in result.meet.swimmers.values():
+            self.assertEqual(Gender.MALE, swimmer.gender)
+            self.assertEqual("John", swimmer.first_name)
+            self.assertEqual("Doe", swimmer.last_name)
+
 class TestD1NewFields(unittest.TestCase):
     """capture D1 citizenship (cols 113-115), unparsed col 125, and unparsed cols 100-101."""
 

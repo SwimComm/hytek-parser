@@ -12,6 +12,25 @@ class Gender(Enum):
     FEMALE = "F"
     UNKNOWN = "U"
 
+    @classmethod
+    def _missing_(cls, value):
+        # Hy-Tek exporters occasionally emit a lowercase sex byte. Case is
+        # not meaningful in this column, and UNKNOWN specifically means
+        # "the file did not say" -- so a lowercase 'm' has to resolve to
+        # MALE rather than become indistinguishable from a blank column.
+        #
+        # Retry ONLY when upcasing changes the value. Without that guard an
+        # unrecognized uppercase byte re-enters this hook with an identical
+        # value and recurses forever.
+        #
+        # _missing_ rather than aenum's native _missing_value_: both work
+        # here, but _missing_ is also the stdlib hook, so it keeps working
+        # if the enum base ever changes. _missing_value_ would silently
+        # become a no-op and reintroduce the bug with no signal.
+        if isinstance(value, str) and value.upper() != value:
+            return cls(value.upper())
+        return None
+
 
 class Stroke(Enum):
     """Types of swimming strokes."""
