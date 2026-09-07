@@ -143,11 +143,17 @@ def int_or_none(value:str|None) -> int|None:
     return int(value) if value and value.isdigit() else None
 
 def date_or_none(value: str|None) -> date|None:
-    """Safely return either a date from a numeric string value, or None
+    """Safely return either a valid date from a numeric string value, or None
     
     Args:
         value (str|None): The value to cast to date 
     
     Returns:
-        date|None: Either the parsed date value or None"""
-    return datetime.strptime(value, "%m%d%Y").date() if value and value.isnumeric() else None
+        date|None: The parsed date, or None for blank, malformed, or invalid values"""
+    if not value or not value.isnumeric():
+        return None
+    try:
+        return datetime.strptime(value, "%m%d%Y").date()
+    except ValueError:
+        # Some Meet Manager exports contain numeric but impossible dates.
+        return None
