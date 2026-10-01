@@ -28,6 +28,9 @@ class TestUtils(unittest.TestCase):
         
     def test_date_or_none(self) -> None:
         self.assertIsNone(date_or_none(""))
+        self.assertIsNone(date_or_none("notadate"))
+        self.assertIsNone(date_or_none("99999999"))
+        self.assertIsNone(date_or_none("02312025"))
         self.assertEqual(datetime.date(1970, 1, 2), date_or_none("01021970"))  
                    
 class TestParseReactionTime(unittest.TestCase):

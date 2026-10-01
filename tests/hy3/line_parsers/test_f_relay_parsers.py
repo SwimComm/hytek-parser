@@ -8,9 +8,8 @@ from hytek_parser.hy3.line_parsers.d_swimmer_parsers import d1_parser
 from hytek_parser.hy3.line_parsers.f_relay_parsers import f1_parser, f2_parser, f3_parser
 
 
-class TestF2BlankDateColumn(unittest.TestCase):
-    """Bug 1 — F2 lines with blank date column must populate timing fields
-    and leave date None instead of raising."""
+class TestF2ResultDateColumn(unittest.TestCase):
+    """Blank or invalid F2 dates must not discard otherwise valid results."""
 
     def _build_file_with_relay_entry(self):
         opts = {"default_country": "USA"}
@@ -34,6 +33,14 @@ class TestF2BlankDateColumn(unittest.TestCase):
         event_num, event = result.meet.last_event
         entry = event.last_entry
         self.assertIsNotNone(entry.finals_time)
+        self.assertEqual(111.06, entry.finals_time)
+        self.assertIsNone(entry.finals_date)
+
+    def test_f2_parser_with_invalid_date_does_not_raise(self):
+        file, opts = self._build_file_with_relay_entry()
+        f2_line = "F2F  111.06Y       0  2  6  4   4  0  111.00  111.16    0.00       111.06     0.00                    99999999                  46"
+        result = f2_parser(f2_line, file, opts)
+        entry = result.meet.last_event[1].last_entry
         self.assertEqual(111.06, entry.finals_time)
         self.assertIsNone(entry.finals_date)
 

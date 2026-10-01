@@ -112,10 +112,8 @@ class TestE1FloatDistance(unittest.TestCase):
         self.assertEqual(0.0, event.distance)
 
 
-class TestE2BlankDateColumn(unittest.TestCase):
-    """Bug 1 — MM2 2.0 (and other MM versions) export E2 lines with a blank
-    date column. e2_parser must populate timing fields and leave date as None
-    rather than raising ValueError on the empty strptime."""
+class TestE2ResultDateColumn(unittest.TestCase):
+    """Blank or invalid E2 dates must not discard otherwise valid results."""
 
     def _build_file_with_event(self):
         opts = {"default_country": "USA"}
@@ -137,6 +135,14 @@ class TestE2BlankDateColumn(unittest.TestCase):
         event = result.meet.events.get("22X")
         entry = event.last_entry
         self.assertIsNotNone(entry.finals_time)
+        self.assertEqual(54.79, entry.finals_time)
+        self.assertIsNone(entry.finals_date)
+
+    def test_e2_parser_with_invalid_date_does_not_raise(self):
+        file, opts = self._build_file_with_event()
+        e2_line = "E2F   54.79Y       0  2  3  4  12  0    0.00   54.93    0.00        54.79     0.00     99999999                           0     25"
+        result = e2_parser(e2_line, file, opts)
+        entry = result.meet.events["22X"].last_entry
         self.assertEqual(54.79, entry.finals_time)
         self.assertIsNone(entry.finals_date)
 

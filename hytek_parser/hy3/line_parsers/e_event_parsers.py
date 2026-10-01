@@ -1,7 +1,12 @@
-from datetime import datetime
 from typing import Any
 
-from hytek_parser._utils import extract, get_age_group, safe_cast, select_from_enum
+from hytek_parser._utils import (
+    date_or_none,
+    extract,
+    get_age_group,
+    safe_cast,
+    select_from_enum,
+)
 from hytek_parser.hy3._utils import parse_reaction_time, parse_time, parse_time_or_none
 from hytek_parser.hy3.enums import (
     Course,
@@ -121,8 +126,7 @@ def e2_parser(
     # col 83-87. Signed; sentinels are blank / 0.00 in any sign spelling.
     reaction_time = parse_reaction_time(extract(line, 83, 5))
 
-    raw_date = extract(line, 88, 8).strip()
-    date_ = datetime.strptime(raw_date, "%m%d%Y").date() if raw_date else None
+    date_ = date_or_none(extract(line, 88, 8).strip())
 
     # Get entry
     event_num, event = file.meet.last_event
