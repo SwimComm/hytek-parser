@@ -84,6 +84,11 @@ def f1_parser(
         converted_seed_time_course=entry_converted_seed_time_course,
         relay_team_id=relay_team,
         relay_swim_team_code=team_code,
+        # The entry's own event fields (see EventEntry).
+        distance=distance,
+        stroke=stroke,
+        course=event_course,
+        event_type=extract(line, 96, 1) or None,
     )
 
     # Update event

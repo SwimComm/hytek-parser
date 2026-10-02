@@ -15,25 +15,33 @@ def g1_parser(
     event_num, event = file.meet.last_event
     entry = event.last_entry
 
-    # Read splits
+    # Set correct attribute
+    if event_type == ResultType.PRELIM:
+        target = entry.prelim_splits
+    elif event_type == ResultType.SWIMOFF:
+        target = entry.swimoff_splits
+    elif event_type == ResultType.FINAL:
+        target = entry.finals_splits
+    else:
+        raise ValueError("Invalid event type!")
+
+    # Read splits. The index is a two-character field, so it wraps at 100:
+    # a swim with more than 49 split slots (a 1500 LCM or 1650 SCY recorded
+    # every 25) continues "...F96 ... F00 ... F04 ..." on the next G1 line,
+    # and read literally the wrapped indexes collide with the early ones and
+    # overwrite them. Indexes are monotonic within an entry, so a value below
+    # the highest one already seen for this slot means the field wrapped.
     line_pos = 4
-    splits: dict[int, float] = {}
+    highest = max(target) if target else -1
     while line_pos < 124 and line[line_pos] != " ":
         split_num = safe_cast(int, extract(line, line_pos, 2))
         split_time = safe_cast(float, extract(line, line_pos + 2, 8))
 
-        splits[split_num] = split_time
+        while split_num <= highest and highest >= 0:
+            split_num += 100
+        highest = max(highest, split_num)
+        target[split_num] = split_time
         line_pos += 11  # MM for some reason specifies P/S/F every time???
-
-    # Set correct attribute
-    if event_type == ResultType.PRELIM:
-        entry.prelim_splits |= splits
-    elif event_type == ResultType.SWIMOFF:
-        entry.swimoff_splits |= splits
-    elif event_type == ResultType.FINAL:
-        entry.finals_splits |= splits
-    else:
-        raise ValueError("Invalid event type!")
 
     event.last_entry = entry
     file.meet.last_event = (event_num, event)

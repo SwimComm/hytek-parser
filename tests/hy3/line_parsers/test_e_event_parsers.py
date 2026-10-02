@@ -4,6 +4,7 @@ from hytek_parser.hy3.schemas import ParsedHytekFile
 from hytek_parser.hy3.line_parsers.d_swimmer_parsers import d1_parser
 from hytek_parser.hy3.line_parsers.e_event_parsers import e1_parser, e2_parser
 from hytek_parser.hy3.schemas import Meet, Team, Gender, Stroke
+from hytek_parser.hy3.enums import Course
 
 class TestEEventParser(unittest.TestCase):
     
@@ -375,3 +376,117 @@ class TestE2DqSlotAnchor(unittest.TestCase):
 
 if __name__=='__main__':
     unittest.main()
+
+
+class TestEntryOwnEventFields(unittest.TestCase):
+    """An entry keeps the distance/stroke/course written on its own E1 line.
+
+    Events are keyed by event number, so when one number carries more than
+    one distance the Event holds only the first distance seen. The entry's
+    own fields are what that entry actually swam.
+    """
+
+    def _file(self):
+        opts = {"default_country": "USA"}
+        file = ParsedHytekFile()
+        file.meet = Meet()
+        file.meet.last_team = ("FOO", Team("Foo Bar", "FOO", "foo","","","","","","","","","","","",{}))
+        d_line = "D1F   27Hansen              Mads                                                        10272010 13                             27"
+        return d1_parser(d_line, file, opts), opts
+
+    def test_entry_carries_its_own_fields(self):
+        file, opts = self._file()
+        e_line = "E1F   27HanseFG  1000A 13 14  0S  4.25  7A  715.47Y  715.47Y    3.00    0.00   NN               N                       "
+        file = e1_parser(e_line, file, opts)
+        entry = file.meet.events["7A"].last_entry
+        self.assertEqual(1000.0, entry.distance)
+        self.assertEqual(Stroke.FREESTYLE, entry.stroke)
+        self.assertEqual(Course.SCY, entry.course)
+        self.assertIsNone(entry.event_type)
+
+    def test_split_request_entry_is_a_second_entry_at_its_own_distance(self):
+        """A meet director can record an intermediate split as its own
+        official time by entering it in a swim-off ("S" in column 96) or
+        time-trial ("T") event that reuses the full-distance event's number:
+        a second E1 for the same number with the shorter distance, fee 0 and
+        seed 0, followed by an E2 carrying the split time. It must land as its
+        own entry at its own distance, while the Event keeps the distance it
+        was created with."""
+        file, opts = self._file()
+        main = "E1F   27HanseFG  1000A 13 14  0S  4.25  7A  715.47Y  715.47Y    3.00    0.00   NN               N                       "
+        e2_main = "E2F  707.50Y       0  4  7  6  14  0  707.56  707.49  707.52       707.50     0.00     12032009                         "
+        split = "E1F   27HanseFG   500A 13 18  0A  0.00  7A    0.00     0.00     0.00    0.00   NN              SN                       "
+        e2_split = "E2F  351.55Y       0  1  6  3   2  0    0.00    0.00    0.00         0.00     0.00                                      "
+        for ln, fn in ((main, e1_parser), (e2_main, e2_parser), (split, e1_parser), (e2_split, e2_parser)):
+            file = fn(ln, file, opts)
+        event = file.meet.events["7A"]
+        self.assertEqual(1000.0, event.distance)
+        self.assertEqual(2, len(event.entries))
+        first, second = event.entries
+        self.assertEqual((1000.0, None, 707.50), (first.distance, first.event_type, first.finals_time))
+        self.assertEqual((500.0, "S", 351.55), (second.distance, second.event_type, second.finals_time))
+
+    def test_prelim_and_finals_of_one_swim_still_merge(self):
+        """The distance joins the entry identity; a prelim + finals re-listing
+        at the same distance still folds into one entry as before."""
+        file, opts = self._file()
+        p = "E1F   27HanseFG   100A 13 14  0S  4.25 71    61.05Y   61.05Y    1.00    0.00   NN               N                       "
+        e2p = "E2P   59.85Y       0  3  1  6  16  0   59.83   60.01   59.65        59.85     0.00     12052009                         "
+        e2f = "E2F   59.26Y       0  1  8  8  16  0   59.34   59.25   59.25        59.26     0.00     12052009                         "
+        file = e1_parser(p, file, opts); file = e2_parser(e2p, file, opts)
+        file = e1_parser(p, file, opts); file = e2_parser(e2f, file, opts)
+        event = file.meet.events["71"]
+        self.assertEqual(1, len(event.entries))
+        self.assertEqual((59.85, 59.26), (event.entries[0].prelim_time, event.entries[0].finals_time))
+
+    def test_combined_distance_event_keeps_each_entrys_distance(self):
+        """One event number, two distances (swimmers choose 400 or 500)."""
+        file, opts = self._file()
+        d2 = "D1F   28Smith               Jane                                                        10272010 13                             28"
+        file = d1_parser(d2, file, opts)
+        a = "E1F   27HanseFG   500A 13 14  0S  4.25 41C  356.02Y  356.02Y    1.00    0.00   NN               N                       "
+        b = "E1F   28SmithFG   400A 13 14  0S  4.25 41C  290.00L  290.00L    1.00    0.00   NN               N                       "
+        file = e1_parser(a, file, opts); file = e1_parser(b, file, opts)
+        event = file.meet.events["41C"]
+        self.assertEqual(500.0, event.distance)
+        self.assertEqual([500.0, 400.0], [e.distance for e in event.entries])
+
+
+class TestG1SplitIndexWrap(unittest.TestCase):
+    """The G1 split index is a two-character field and wraps at 100."""
+
+    def test_wrapped_indexes_continue_instead_of_overwriting(self):
+        from hytek_parser.hy3.line_parsers.g_split_parsers import g1_parser
+        opts = {"default_country": "USA"}
+        file = ParsedHytekFile()
+        file.meet = Meet()
+        file.meet.last_team = ("FOO", Team("Foo Bar", "FOO", "foo","","","","","","","","","","","",{}))
+        d = "D1M   27Hansen              Mads                                                        10272010 13                             27"
+        e1 = "E1M   27HanseMB  1500A 15109  0A 10.00 12C    0.00L    0.00L    0.00    0.00   NN               N                               10"
+        e2 = "E2F 1087.01L       0  1  5  2   2  0    0.00    0.00    0.00      1087.01     0.00     05292021K                          0     46"
+        g1a = "G1F 4    0.00F 8   66.75F12    0.00F16  139.54F20    0.00F24  212.15F28    0.00F32  284.59F36    0.00F40  357.38F44    0.00     42"
+        g1b = "G1F48  431.18F52    0.00F56  504.48F60    0.00F64  577.28F68    0.00F72  651.37F76    0.00F80  725.04F84    0.00F88  798.37     63"
+        g1c = "G1F92    0.00F96  871.63F00    0.00F04  945.32F08    0.00F12 1018.09F16    0.00F20 1087.01                                      79"
+        file = d1_parser(d, file, opts); file = e1_parser(e1, file, opts); file = e2_parser(e2, file, opts)
+        for ln in (g1a, g1b, g1c):
+            file = g1_parser(ln, file, opts)
+        splits = file.meet.events["12C"].last_entry.finals_splits
+        self.assertEqual(30, len(splits))
+        self.assertEqual(66.75, splits[8])          # early split survives
+        self.assertEqual(945.32, splits[104])       # "04" after the wrap -> 104
+        self.assertEqual(1087.01, splits[120])      # the finish, "20" -> 120
+        self.assertEqual(list(range(4, 121, 4)), sorted(splits))
+
+    def test_unwrapped_swim_is_unchanged(self):
+        from hytek_parser.hy3.line_parsers.g_split_parsers import g1_parser
+        opts = {"default_country": "USA"}
+        file = ParsedHytekFile()
+        file.meet = Meet()
+        file.meet.last_team = ("FOO", Team("Foo Bar", "FOO", "foo","","","","","","","","","","","",{}))
+        d = "D1F   27Hansen              Mads                                                        10272010 13                             27"
+        e1 = "E1F   27HanseFG   100A 13 14  0S  4.25 71    61.05Y   61.05Y    1.00    0.00   NN               N                       "
+        e2 = "E2F   59.26Y       0  1  8  8  16  0   59.34   59.25   59.25        59.26     0.00     12052009                         "
+        g1 = "G1F 2   28.47F 4   59.26                                                                                                "
+        file = d1_parser(d, file, opts); file = e1_parser(e1, file, opts); file = e2_parser(e2, file, opts)
+        file = g1_parser(g1, file, opts)
+        self.assertEqual({2: 28.47, 4: 59.26}, file.meet.events["71"].last_entry.finals_splits)
