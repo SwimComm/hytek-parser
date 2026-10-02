@@ -68,7 +68,7 @@ def e1_parser(
     # The two are mutually exclusive; col 77 takes precedence.
     meet_division = extract(line, 77, 3) or extract(line, 92, 2) or None
     exhibition = extract(line, 84, 1) == "X"
-    entry_flag = extract(line, 96, 1) or None
+    event_type = extract(line, 96, 1) or None  # T/S/O/D, see EventEntry
 
     entry = event.get_or_create_entry(
         swimmers=entry_swimmers,
@@ -85,7 +85,7 @@ def e1_parser(
         distance=distance,
         stroke=stroke,
         course=event_course,
-        entry_flag=entry_flag,
+        event_type=event_type,
     )
 
     # Update event

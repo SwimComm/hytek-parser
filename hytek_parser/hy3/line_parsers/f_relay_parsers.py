@@ -83,7 +83,7 @@ def f1_parser(
         distance=distance,
         stroke=stroke,
         course=event_course,
-        entry_flag=extract(line, 96, 1) or None,
+        event_type=extract(line, 96, 1) or None,
     )
 
     # Update event

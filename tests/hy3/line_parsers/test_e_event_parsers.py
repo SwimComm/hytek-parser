@@ -396,15 +396,16 @@ class TestEntryOwnEventFields(unittest.TestCase):
         self.assertEqual(1000.0, entry.distance)
         self.assertEqual(Stroke.FREESTYLE, entry.stroke)
         self.assertEqual(Course.SCY, entry.course)
-        self.assertIsNone(entry.entry_flag)
+        self.assertIsNone(entry.event_type)
 
     def test_split_request_entry_is_a_second_entry_at_its_own_distance(self):
-        """A meet-management export can record an intermediate split as its
-        own official time: a second E1 for the same event number with the
-        shorter distance, fee 0, seed 0 and an "S" flag in column 96, followed
-        by an E2 carrying the split time. It must land as its own entry at
-        its own distance, while the Event keeps the distance it was created
-        with."""
+        """A meet director can record an intermediate split as its own
+        official time by entering it in a swim-off ("S" in column 96) or
+        time-trial ("T") event that reuses the full-distance event's number:
+        a second E1 for the same number with the shorter distance, fee 0 and
+        seed 0, followed by an E2 carrying the split time. It must land as its
+        own entry at its own distance, while the Event keeps the distance it
+        was created with."""
         file, opts = self._file()
         main = "E1F   27HanseFG  1000A 13 14  0S  4.25  7A  715.47Y  715.47Y    3.00    0.00   NN               N                       "
         e2_main = "E2F  707.50Y       0  4  7  6  14  0  707.56  707.49  707.52       707.50     0.00     12032009                         "
@@ -416,8 +417,8 @@ class TestEntryOwnEventFields(unittest.TestCase):
         self.assertEqual(1000.0, event.distance)
         self.assertEqual(2, len(event.entries))
         first, second = event.entries
-        self.assertEqual((1000.0, None, 707.50), (first.distance, first.entry_flag, first.finals_time))
-        self.assertEqual((500.0, "S", 351.55), (second.distance, second.entry_flag, second.finals_time))
+        self.assertEqual((1000.0, None, 707.50), (first.distance, first.event_type, first.finals_time))
+        self.assertEqual((500.0, "S", 351.55), (second.distance, second.event_type, second.finals_time))
 
     def test_prelim_and_finals_of_one_swim_still_merge(self):
         """The distance joins the entry identity; a prelim + finals re-listing
